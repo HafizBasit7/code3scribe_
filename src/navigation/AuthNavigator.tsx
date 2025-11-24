@@ -39,44 +39,49 @@ const AuthNavigator: React.FC<AuthNavigatorProps> = ({
     onLogin();
   }, [onLogin]);
 
+  // Create a wrapper function that accepts string
+  const handleNavigate = useCallback((screen: string) => {
+    navigate(screen as AuthScreen);
+  }, [navigate]);
+
   const renderScreen = useCallback(() => {
     switch (currentScreen) {
       case 'login':
         return (
           <LoginForm
-            onNavigate={navigate}
+            onNavigate={handleNavigate}
             onSubmit={handleLoginSubmit}
           />
         );
       case 'signup':
         return (
           <SignUpForm
-            onNavigate={navigate}
+            onNavigate={handleNavigate}
             onSubmit={handleSignUpSubmit}
           />
         );
       case 'signup-step2':
         return (
           <SignUpStep2Form
-            onNavigate={navigate}
+            onNavigate={handleNavigate}
             onSubmit={handleOnboardingSubmit}
           />
         );
       case 'forgot-password':
-        return <ForgotPasswordForm onNavigate={navigate} />;
+        return <ForgotPasswordForm onNavigate={handleNavigate} />;
       case 'verification':
-        return <OTPVerification onNavigate={navigate} />;
+        return <OTPVerification onNavigate={handleNavigate} />;
       case 'create-password':
-        return <NewPasswordFrom onNavigate={navigate} />;
+        return <NewPasswordFrom onNavigate={handleNavigate} />;
       default:
         return (
           <LoginForm
-            onNavigate={navigate}
+            onNavigate={handleNavigate}
             onSubmit={handleLoginSubmit}
           />
         );
     }
-  }, [currentScreen, navigate, handleLoginSubmit, handleSignUpSubmit, handleOnboardingSubmit]);
+  }, [currentScreen, handleNavigate, handleLoginSubmit, handleSignUpSubmit, handleOnboardingSubmit]);
 
   return <AuthLayout>{renderScreen()}</AuthLayout>;
 };

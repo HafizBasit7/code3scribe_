@@ -8,9 +8,9 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+//   const theme = useTheme();
+//   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+//   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
   return (
     <Box sx={{ 

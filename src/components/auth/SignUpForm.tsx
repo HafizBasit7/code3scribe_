@@ -4,22 +4,25 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
+
   InputAdornment,
   IconButton,
   Tooltip,
   useTheme,
   useMediaQuery
 } from '@mui/material';
+import { Grid as MuiGrid } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import type { SignUpFormData } from '../../types/auth';
 
 interface SignUpFormProps {
+
   onNavigate: (screen: string) => void;
   onSubmit: (data: SignUpFormData) => void;
 }
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
+  const Grid = MuiGrid as React.ComponentType<any>;
   const [formData, setFormData] = useState<SignUpFormData>({
     firstName: '',
     lastName: '',

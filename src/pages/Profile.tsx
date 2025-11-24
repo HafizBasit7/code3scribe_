@@ -6,19 +6,18 @@ import {
   CardContent,
   Button,
   TextField,
-  Divider,
   useTheme,
   useMediaQuery,
-  Grid
+  
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import LockIcon from '@mui/icons-material/Lock';
+import { Grid as MuiGrid } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import prof from '../assets/icons/prof.jpg';
 
 type ProfileMode = 'view' | 'edit' | 'changePassword';
 
 const Profile: React.FC = () => {
+    const Grid = MuiGrid as React.ComponentType<any>;
   const [mode, setMode] = useState<ProfileMode>('view');
   const [formData, setFormData] = useState({
     firstName: 'Sergio',

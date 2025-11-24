@@ -9,7 +9,6 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import type { ForgotPasswordFormData } from '../../types/auth';
 
 interface ForgotPasswordFormProps {
   onNavigate: (screen: string) => void;

@@ -33,8 +33,8 @@ const AppNavigator: React.FC = () => {
 
   return (
     <MainNavigator 
-      currentScreen={currentScreen}
-      navigate={navigate}
+      // currentScreen={currentScreen}
+      // navigate={navigate}
       onLogout={handleLogout}
     />
   );

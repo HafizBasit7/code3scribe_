@@ -8,17 +8,18 @@ import {
   Chip,
   useTheme,
   useMediaQuery,
-  Grid
+
 } from '@mui/material';
 import mic from '../assets/icons/mic.png';
 import question from '../assets/icons/question.png';
 import arrow from '../assets/icons/arrow.png';
+import { Grid as MuiGrid } from '@mui/material';
 
 const Home: React.FC = () => {
+const Grid = MuiGrid as React.ComponentType<any>;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const historyItems = [
     {
@@ -58,7 +59,7 @@ const Home: React.FC = () => {
     }
   ];
 
-  const actionButtonWidth = isMobile ? '100%' : isTablet ? '100%' : '500px';
+//   const actionButtonWidth = isMobile ? '100%' : isTablet ? '100%' : '500px';
   const actionButtonHeight = isMobile ? '120px' : '140px';
   const robotImageSize = isMobile ? 100 : isTablet ? 120 : 150;
 
@@ -407,7 +408,7 @@ const Home: React.FC = () => {
               background: '#94a3b8',
             }
           }}>
-            {historyItems.map((item, index) => (
+            {historyItems.map((item) => (
               <Card 
                 key={item.id} 
                 sx={{ 
