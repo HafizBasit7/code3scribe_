@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
 import type { AuthScreen } from '../types/auth';
@@ -7,19 +7,19 @@ const AppNavigator: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<AuthScreen>('login');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const navigate = (screen: AuthScreen) => {
+  const navigate = useCallback((screen: AuthScreen) => {
     setCurrentScreen(screen);
-  };
+  }, []);
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     setIsAuthenticated(true);
     setCurrentScreen('home');
-  };
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setIsAuthenticated(false);
     setCurrentScreen('login');
-  };
+  }, []);
 
   if (!isAuthenticated) {
     return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme, useMediaQuery } from '@mui/material';
 import Sidebar from './Sidebar';
 
 interface LayoutProps {
@@ -8,6 +8,10 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -16,7 +20,8 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
       bgcolor: '#f8fafc', 
       overflow: 'hidden',
       margin: 0,
-      padding: 0 
+      padding: 0,
+      flexDirection: { xs: 'column', md: 'row' }
     }}>
       {/* Sidebar */}
       <Sidebar onLogout={onLogout} />
@@ -29,12 +34,16 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
           bgcolor: '#f8fafc', 
           display: 'flex', 
           flexDirection: 'column',
-          height: '100vh',
+          height: { xs: 'calc(100vh - 80px)', md: '100vh' },
           overflow: 'hidden',
-          marginLeft: '10px',
-          width: 'calc(100vw - 280px)',
+          marginLeft: { xs: 0, md: '10px' },
+          width: { 
+            xs: '100vw', 
+            md: 'calc(100vw - 280px)' 
+          },
           minWidth: 0,
-          ml: 3
+          ml: { xs: 0, md: 3 },
+          mt: { xs: '80px', md: 0 }
         }}
       >
         {children}

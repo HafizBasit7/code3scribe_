@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -6,12 +6,15 @@ import {
   CardContent,
   Button,
   TextField,
-  Divider
+  Divider,
+  useTheme,
+  useMediaQuery,
+  Grid
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import prof from '../assets/icons/prof.jpg'; // Import your profile image
+import prof from '../assets/icons/prof.jpg';
 
 type ProfileMode = 'view' | 'edit' | 'changePassword';
 
@@ -29,6 +32,10 @@ const Profile: React.FC = () => {
     confirmPassword: ''
   });
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+
   const userData = {
     firstName: 'Sergio',
     lastName: 'Perez',
@@ -36,17 +43,28 @@ const Profile: React.FC = () => {
     email: 'sergioperez@c3s.com'
   };
 
-  const handleEditClick = () => {
+  const handleEditClick = useCallback(() => {
     setMode('edit');
-  };
+    // Scroll to top when entering edit mode on mobile
+    if (isMobile) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+  }, [isMobile]);
 
-  const handleChangePasswordClick = () => {
+  const handleChangePasswordClick = useCallback(() => {
     setMode('changePassword');
-  };
+    // Scroll to top when entering change password mode on mobile
+    if (isMobile) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+  }, [isMobile]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setMode('view');
-    // Reset form data to original values
     setFormData({
       firstName: 'Sergio',
       lastName: 'Perez',
@@ -58,172 +76,178 @@ const Profile: React.FC = () => {
       newPassword: '',
       confirmPassword: ''
     });
-  };
+  }, []);
 
-  const handleSave = () => {
-    // Handle save logic here
+  const handleSave = useCallback(() => {
     setMode('view');
-  };
+  }, []);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
-  const handlePasswordChange = (field: string, value: string) => {
+  const handlePasswordChange = useCallback((field: string, value: string) => {
     setPasswordData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
-  const renderProfileContent = () => {
+  const renderProfileContent = useCallback(() => {
     switch (mode) {
       case 'edit':
         return (
-          <Box sx={{ flex: 1 }}>
-            <Typography 
-              variant="h6" 
+          <Box sx={{ flex: 1, minHeight: isMobile ? 'auto' : '400px' }}>
+            {/* <Typography 
+              variant={isMobile ? "h6" : "h5"} 
               sx={{ 
                 fontWeight: 600, 
                 color: 'rgba(14, 97, 192, 1)',
-                mb: 3
+                mb: 3,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
               }}
             >
               Edit Personal Information
-            </Typography>
+            </Typography> */}
 
-            {/* First Name */}
-            <Box sx={{ mb: 2 }}>
-              <Typography 
-                variant="subtitle2" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  mb: 1
-                }}
-              >
-                First Name:
-              </Typography>
-              <TextField
-                fullWidth
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                variant="outlined"
-                size="small"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'rgba(14, 97, 192, 1)',
-                    },
-                  }
-                }}
-              />
-            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: 1 }}>
+                  <Typography 
+                    variant="subtitle2" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 1
+                    }}
+                  >
+                    First Name:
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    variant="outlined"
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'rgba(14, 97, 192, 1)',
+                        },
+                      }
+                    }}
+                  />
+                </Box>
+              </Grid>
 
-            {/* Last Name */}
-            <Box sx={{ mb: 2 }}>
-              <Typography 
-                variant="subtitle2" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  mb: 1
-                }}
-              >
-                Last Name:
-              </Typography>
-              <TextField
-                fullWidth
-                value={formData.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                variant="outlined"
-                size="small"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'rgba(14, 97, 192, 1)',
-                    },
-                  }
-                }}
-              />
-            </Box>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: 1 }}>
+                  <Typography 
+                    variant="subtitle2" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 1
+                    }}
+                  >
+                    Last Name:
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    variant="outlined"
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'rgba(14, 97, 192, 1)',
+                        },
+                      }
+                    }}
+                  />
+                </Box>
+              </Grid>
 
-            {/* Contact Number */}
-            <Box sx={{ mb: 2 }}>
-              <Typography 
-                variant="subtitle2" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  mb: 1
-                }}
-              >
-                Contact Number:
-              </Typography>
-              <TextField
-                fullWidth
-                value={formData.contactNumber}
-                onChange={(e) => handleInputChange('contactNumber', e.target.value)}
-                variant="outlined"
-                size="small"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'rgba(14, 97, 192, 1)',
-                    },
-                  }
-                }}
-              />
-            </Box>
+              <Grid item xs={12}>
+                <Box sx={{ mb: 1 }}>
+                  <Typography 
+                    variant="subtitle2" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 1
+                    }}
+                  >
+                    Contact Number:
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    value={formData.contactNumber}
+                    onChange={(e) => handleInputChange('contactNumber', e.target.value)}
+                    variant="outlined"
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'rgba(14, 97, 192, 1)',
+                        },
+                      }
+                    }}
+                  />
+                </Box>
+              </Grid>
 
-            {/* Email Address */}
-            <Box sx={{ mb: 3 }}>
-              <Typography 
-                variant="subtitle2" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  mb: 1
-                }}
-              >
-                Email Address:
-              </Typography>
-              <TextField
-                fullWidth
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                variant="outlined"
-                size="small"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'rgba(14, 97, 192, 1)',
-                    },
-                  }
-                }}
-              />
-            </Box>
+              <Grid item xs={12}>
+                <Box sx={{ mb: 1 }}>
+                  <Typography 
+                    variant="subtitle2" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 1
+                    }}
+                  >
+                    Email Address:
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    variant="outlined"
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'rgba(14, 97, 192, 1)',
+                        },
+                      }
+                    }}
+                  />
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
         );
 
       case 'changePassword':
         return (
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, minHeight: isMobile ? 'auto' : '400px' }}>
             <Typography 
-              variant="h6" 
+              variant={isMobile ? "h6" : "h5"} 
               sx={{ 
                 fontWeight: 600, 
                 color: 'rgba(14, 97, 192, 1)',
-                mb: 3
+                mb: 3,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
               }}
             >
               Change Password
             </Typography>
 
-            {/* Old Password */}
             <Box sx={{ mb: 2 }}>
               <Typography 
                 variant="subtitle2" 
@@ -241,7 +265,7 @@ const Profile: React.FC = () => {
                 value={passwordData.oldPassword}
                 onChange={(e) => handlePasswordChange('oldPassword', e.target.value)}
                 variant="outlined"
-                size="small"
+                size={isMobile ? "small" : "medium"}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&.Mui-focused fieldset': {
@@ -252,7 +276,6 @@ const Profile: React.FC = () => {
               />
             </Box>
 
-            {/* New Password */}
             <Box sx={{ mb: 2 }}>
               <Typography 
                 variant="subtitle2" 
@@ -270,7 +293,7 @@ const Profile: React.FC = () => {
                 value={passwordData.newPassword}
                 onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
                 variant="outlined"
-                size="small"
+                size={isMobile ? "small" : "medium"}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&.Mui-focused fieldset': {
@@ -281,7 +304,6 @@ const Profile: React.FC = () => {
               />
             </Box>
 
-            {/* Confirm New Password */}
             <Box sx={{ mb: 3 }}>
               <Typography 
                 variant="subtitle2" 
@@ -299,7 +321,7 @@ const Profile: React.FC = () => {
                 value={passwordData.confirmPassword}
                 onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
                 variant="outlined"
-                size="small"
+                size={isMobile ? "small" : "medium"}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&.Mui-focused fieldset': {
@@ -312,133 +334,133 @@ const Profile: React.FC = () => {
           </Box>
         );
 
-      default: // view mode
+      default:
         return (
           <Box sx={{ flex: 1 }}>
-            {/* <Typography 
-              variant="h6" 
+            <Typography 
+              variant={isMobile ? "h6" : "h5"} 
               sx={{ 
                 fontWeight: 600, 
                 color: 'rgba(14, 97, 192, 1)',
-                mb: 3
+                mb: 1,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
               }}
             >
-              Personal Information
-            </Typography> */}
-            {/* User Info */}
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: 'rgba(14, 97, 192, 1)',
-                
-                  
-                }}
-              >
-                Sergio Perez
-              </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#64748b',
-                  fontSize: '0.9rem',
-                 mb: 3,
-                }}
-              >
-                sergioperez@c3s.com
-              </Typography>
+              Sergio Perez
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: '#64748b',
+                fontSize: { xs: '0.875rem', sm: '0.9rem' },
+                mb: 3,
+              }}
+            >
+              sergioperez@c3s.com
+            </Typography>
 
-           {/* First Name */}
-<Box sx={{ mb: 1.5, display: 'flex' }}>
-  <Typography 
-    sx={{ 
-      fontWeight: 600, 
-      color: '#374151',
-      width: 200 // label width to align all fields
-    }}
-  >
-    First Name:
-  </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
+                  <Typography 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 0.5,
+                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
+                    }}
+                  >
+                    First Name:
+                  </Typography>
+                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
+                    {userData.firstName || '-'}
+                  </Typography>
+                </Box>
+              </Grid>
 
-  <Typography sx={{ color: '#111827' }}>
-    {userData.firstName || '-'}
-  </Typography>
-</Box>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
+                  <Typography 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 0.5,
+                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
+                    }}
+                  >
+                    Last Name:
+                  </Typography>
+                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
+                    {userData.lastName || '-'}
+                  </Typography>
+                </Box>
+              </Grid>
 
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
+                  <Typography 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 0.5,
+                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
+                    }}
+                  >
+                    Contact Number:
+                  </Typography>
+                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
+                    {userData.contactNumber || '-'}
+                  </Typography>
+                </Box>
+              </Grid>
 
-          {/* Last Name */}
-<Box sx={{ mb: 1.5, display: 'flex' }}>
-  <Typography 
-    sx={{ 
-      fontWeight: 600, 
-      color: '#374151',
-      width: 200   // same width for perfect alignment
-    }}
-  >
-    Last Name:
-  </Typography>
-
-  <Typography sx={{ color: '#111827' }}>
-    {userData.lastName || '-'}
-  </Typography>
-</Box>
-
-{/* Contact Number */}
-<Box sx={{ mb: 1.5, display: 'flex' }}>
-  <Typography 
-    sx={{ 
-      fontWeight: 600, 
-      color: '#374151',
-      width: 200
-    }}
-  >
-    Contact Number:
-  </Typography>
-
-  <Typography sx={{ color: '#111827' }}>
-    {userData.contactNumber || '-'}
-  </Typography>
-</Box>
-
-{/* Email Address */}
-<Box sx={{ mb: 1.5, display: 'flex' }}>
-  <Typography 
-    sx={{ 
-      fontWeight: 600, 
-      color: '#374151',
-      width: 200
-    }}
-  >
-    Email Address:
-  </Typography>
-
-  <Typography sx={{ color: '#111827' }}>
-    {userData.email || '-'}
-  </Typography>
-</Box>
-
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
+                  <Typography 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: '#374151',
+                      mb: 0.5,
+                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
+                    }}
+                  >
+                    Email Address:
+                  </Typography>
+                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
+                    {userData.email || '-'}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
         );
     }
-  };
+  }, [mode, formData, passwordData, userData, handleInputChange, handlePasswordChange, isMobile]);
 
-  const renderActionButtons = () => {
+  const renderActionButtons = useCallback(() => {
     if (mode === 'view') {
       return (
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 2, 
+          flexWrap: 'wrap', 
+          mt: 2,
+          justifyContent: { xs: 'center', sm: 'flex-start' }
+        }}>
           <Button
             variant="outlined"
-            // startIcon={<LockIcon />}
             onClick={handleChangePasswordClick}
             sx={{
-               background: 'linear-gradient(135deg, rgba(14,97,192,1) 100%)',
-             color: 'white',
+              background: 'rgba(14, 97, 192, 1)',
+              color: 'white',
               borderRadius: 2,
               fontWeight: 600,
-              px: 3,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              fontSize: { xs: '0.875rem', sm: '0.9rem' },
+              minWidth: { xs: '140px', sm: 'auto' },
               '&:hover': {
-                borderColor: 'rgba(14, 97, 192, 1)',
-                backgroundColor: 'rgba(14, 97, 192, 0.04)',
+                background: 'rgba(14, 97, 192, 0.9)',
               }
             }}
           >
@@ -446,16 +468,18 @@ const Profile: React.FC = () => {
           </Button>
           <Button
             variant="contained"
-            // startIcon={<EditIcon />}
             onClick={handleEditClick}
             sx={{
-              background: 'linear-gradient(135deg, rgba(193, 160, 249, 1) 100%, rgba(14,97,192,1) 100%)',
+              background: 'linear-gradient(135deg, rgba(193, 160, 249, 1) 0%, rgba(56, 135, 225, 1) 100%)',
               color: 'white',
               borderRadius: 2,
               fontWeight: 600,
-              px: 3,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              fontSize: { xs: '0.875rem', sm: '0.9rem' },
+              minWidth: { xs: '140px', sm: 'auto' },
               '&:hover': {
-                background: 'linear-gradient(135deg, rgba(14,97,192,1) 0%, rgba(82,149,226,1) 100%)',
+                background: 'linear-gradient(135deg, rgba(56, 135, 225, 1) 0%, rgba(193, 160, 249, 1) 100%)',
               }
             }}
           >
@@ -465,7 +489,19 @@ const Profile: React.FC = () => {
       );
     } else {
       return (
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 2, 
+          flexWrap: 'wrap', 
+          mt: 2,
+          justifyContent: { xs: 'center', sm: 'flex-start' },
+          position: isMobile ? 'sticky' : 'static',
+          bottom: isMobile ? 0 : 'auto',
+          backgroundColor: isMobile ? 'white' : 'transparent',
+          py: isMobile ? 2 : 0,
+          borderTop: isMobile ? '1px solid #e2e8f0' : 'none',
+          zIndex: isMobile ? 10 : 'auto'
+        }}>
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
@@ -475,7 +511,10 @@ const Profile: React.FC = () => {
               color: '#64748b',
               borderRadius: 2,
               fontWeight: 600,
-              px: 3,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              fontSize: { xs: '0.875rem', sm: '0.9rem' },
+              minWidth: { xs: '120px', sm: 'auto' },
               '&:hover': {
                 borderColor: '#374151',
                 backgroundColor: 'rgba(100, 116, 139, 0.04)',
@@ -492,7 +531,10 @@ const Profile: React.FC = () => {
               color: 'white',
               borderRadius: 2,
               fontWeight: 600,
-              px: 3,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              fontSize: { xs: '0.875rem', sm: '0.9rem' },
+              minWidth: { xs: '120px', sm: 'auto' },
               '&:hover': {
                 background: 'linear-gradient(135deg, rgba(14,97,192,1) 0%, rgba(82,149,226,1) 100%)',
               }
@@ -503,11 +545,13 @@ const Profile: React.FC = () => {
         </Box>
       );
     }
-  };
+  }, [mode, handleChangePasswordClick, handleEditClick, handleCancel, handleSave, isMobile]);
+
+  const imageSize = isMobile ? 200 : isTablet ? 250 : 280;
 
   return (
     <Box sx={{ 
-      p: 3, 
+      p: { xs: 2, sm: 3 }, 
       flex: 1, 
       display: 'flex', 
       flexDirection: 'column',
@@ -515,45 +559,50 @@ const Profile: React.FC = () => {
       width: '100%',
       minWidth: 0,
       overflow: 'auto',
+      // Ensure the page is scrollable on mobile in edit modes
+      minHeight: isMobile && (mode === 'edit' || mode === 'changePassword') ? '100vh' : 'auto'
     }}>
-      
-
-      {/* Profile Card - Horizontal Layout */}
+      {/* Profile Card - Responsive Layout */}
       <Card 
         sx={{ 
-          borderRadius: 2,
+          borderRadius: { xs: 1.5, md: 2 },
           background: 'white',
           border: '1px solid #e2e8f0',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
           maxWidth: 900,
           mx: 'auto',
-          width: '100%'
+          width: '100%',
+          // Ensure card doesn't get cut off on mobile
+          mb: isMobile && (mode === 'edit' || mode === 'changePassword') ? 8 : 0
         }}
       >
         <CardContent sx={{ p: 0 }}>
-          <Box sx={{ display: 'flex', p: 4 }}>
-            {/* Left Side - User Image Box and Basic Info */}
+          <Box sx={{ 
+            display: 'flex', 
+            p: { xs: 2, sm: 3, md: 4 },
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'center', md: 'flex-start' }
+          }}>
+            {/* Left Side - User Image */}
             <Box sx={{ 
-              width: 220, 
+              width: { xs: '100%', md: '220px' }, 
               display: 'flex', 
               flexDirection: 'column',
               alignItems: 'center',
-            //   pr: 4,
-              mr: 4
+              mr: { xs: 0, md: 4 },
+              mb: { xs: 3, md: 0 }
             }}>
-              {/* Rectangular Image Box */}
               <Box
                 sx={{
-                  width: 280,
-                  height: 280,
-                //   border: '2px solid rgba(82,149,226,0.3)',
-                //   borderRadius: 2,
+                  width: { xs: imageSize * 0.8, sm: imageSize },
+                  height: { xs: imageSize * 0.8, sm: imageSize },
                   mb: 2,
                   overflow: 'hidden',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: '#f8fafc'
+                  backgroundColor: '#f8fafc',
+                  borderRadius: { xs: 1.5, md: 2 }
                 }}
               >
                 <img
@@ -566,12 +615,17 @@ const Profile: React.FC = () => {
                   }}
                 />
               </Box>
-              
-              
             </Box>
 
             {/* Right Side - Dynamic Content */}
-            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ 
+              flex: 1, 
+              display: 'flex', 
+              flexDirection: 'column',
+              width: '100%',
+              // Ensure content area is properly sized for scrolling
+              minHeight: isMobile && (mode === 'edit' || mode === 'changePassword') ? '400px' : 'auto'
+            }}>
               {renderProfileContent()}
               {renderActionButtons()}
             </Box>

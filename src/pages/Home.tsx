@@ -6,12 +6,20 @@ import {
   Card,
   CardContent,
   Chip,
+  useTheme,
+  useMediaQuery,
+  Grid
 } from '@mui/material';
 import mic from '../assets/icons/mic.png';
 import question from '../assets/icons/question.png';
 import arrow from '../assets/icons/arrow.png';
 
 const Home: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+
   const historyItems = [
     {
       id: 'ID-34567',
@@ -50,9 +58,13 @@ const Home: React.FC = () => {
     }
   ];
 
+  const actionButtonWidth = isMobile ? '100%' : isTablet ? '100%' : '500px';
+  const actionButtonHeight = isMobile ? '120px' : '140px';
+  const robotImageSize = isMobile ? 100 : isTablet ? 120 : 150;
+
   return (
     <Box sx={{ 
-      p: 2, 
+      p: { xs: 1, sm: 2, md: 3 }, 
       flex: 1, 
       display: 'flex', 
       flexDirection: 'column',
@@ -64,8 +76,8 @@ const Home: React.FC = () => {
       {/* Welcome Card with Robot Image */}
       <Card 
         sx={{ 
-          mb: 1, 
-          borderRadius: 3,
+          mb: { xs: 1, md: 2 }, 
+          borderRadius: { xs: 2, md: 3 },
           background: 'white',
           border: '1px solid #e2e8f0',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
@@ -75,30 +87,57 @@ const Home: React.FC = () => {
           width: '100%',
         }}
       >
-        <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <Box sx={{ flex: 1 }}>
+        <CardContent sx={{ 
+          p: { xs: 1, md: 1.5 }, 
+          '&:last-child': { 
+            pb: { xs: 1, md: 1.5 } 
+          } 
+        }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            width: '100%',
+            flexDirection: { xs: 'column', sm: 'row' },
+            textAlign: { xs: 'center', sm: 'left' }
+          }}>
+            <Box sx={{ 
+              flex: 1,
+              order: { xs: 2, sm: 1 },
+              mt: { xs: 2, sm: 0 }
+            }}>
               <Typography 
-                variant="h2" 
+                variant={isMobile ? "h4" : isTablet ? "h3" : "h2"} 
                 sx={{ 
                   fontWeight: 600, 
                   color: 'rgba(14, 97, 192, 1)', 
                   mb: 0,
-                  fontSize: '40px',
-                  ml: 3,
+                  fontSize: { 
+                    xs: '1.75rem', 
+                    sm: '2.125rem', 
+                    md: '2.5rem',
+                    lg: '3rem' 
+                  },
+                  ml: { xs: 0, sm: 3 },
+                  lineHeight: { xs: 1.3, md: 1.2 }
                 }}
               >
                 How May I Help You<br />
                 Today?
               </Typography>
             </Box>
-            <Box sx={{ flexShrink: 0, ml: 3, mr: 3 }}>
+            <Box sx={{ 
+              flexShrink: 0, 
+              ml: { xs: 0, sm: 3 },
+              mr: { xs: 0, sm: 3 },
+              order: { xs: 1, sm: 2 }
+            }}>
               <img
                 src="/assets/images/robo.png"
                 alt="Assistant Robot"
                 style={{
-                  width: 150,
-                  height: 140,
+                  width: robotImageSize,
+                  height: robotImageSize - 10,
                   objectFit: 'contain',
                 }}
               />
@@ -108,170 +147,201 @@ const Home: React.FC = () => {
       </Card>
 
       {/* Buttons Section with Icons */}
-      <Box sx={{ 
-        mb: 1, 
-        display: 'flex', 
-        gap: 3, 
-        flexWrap: 'wrap',
-        flexShrink: 0,
-        width: '100%',
-      }}>
+      <Grid 
+        container 
+        spacing={{ xs: 2, md: 3 }} 
+        sx={{ 
+          mb: { xs: 1, md: 2 }, 
+          flexShrink: 0,
+          width: '100%',
+        }}
+      >
         {/* Start a New Case Button */}
-        <Card
-          sx={{
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
-            boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
-            position: 'relative',
-            overflow: 'hidden',
-            width: '500px',
-            height: '140px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            '&:hover': {
-              boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-            }
-          }}
-        >
-          <Button 
-            variant="contained" 
-            size="large" 
+        <Grid item xs={12} md={6}>
+          <Card
             sx={{
-              width: '100%',
-              height: '100%',
-              background: 'transparent',
-              fontSize: '18px',
-              fontWeight: 600,
-              borderRadius: 3,
-              textTransform: 'none',
-              color: 'white',
+              borderRadius: { xs: 2, md: 3 },
+              background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
+              boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
               position: 'relative',
-              justifyContent: 'flex-start',
+              overflow: 'hidden',
+              width: '100%',
+              height: actionButtonHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               '&:hover': {
-                background: 'transparent',
+                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
               }
             }}
           >
-            {/* Mic Icon - Top Left */}
-            <Box sx={{ 
-              position: 'absolute', 
-              top: 20, 
-              left: 20 
-            }}>
-              <img
-                src={mic}
-                alt="Microphone"
-                style={{
-                  width: 24,
-                  height: 24,
-                  objectFit: 'contain',
-                }}
-              />
-            </Box>
+            <Button 
+              variant="contained" 
+              size="large" 
+              sx={{
+                width: '100%',
+                height: '100%',
+                background: 'transparent',
+                fontSize: { xs: '16px', sm: '18px' },
+                fontWeight: 600,
+                borderRadius: { xs: 2, md: 3 },
+                textTransform: 'none',
+                color: 'white',
+                position: 'relative',
+                justifyContent: 'flex-start',
+                '&:hover': {
+                  background: 'transparent',
+                }
+              }}
+            >
+              {/* Mic Icon */}
+              <Box sx={{ 
+                position: 'absolute', 
+                top: { xs: 15, md: 20 }, 
+                left: { xs: 15, md: 20 } 
+              }}>
+                <img
+                  src={mic}
+                  alt="Microphone"
+                  style={{
+                    width: isMobile ? 20 : 24,
+                    height: isMobile ? 20 : 24,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
 
-            {/* Button Text */}
-            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '28px', mt: 10, }}>
-              Start a New Case
-            </Typography>
-
-            {/* Arrow Icon - Top Right */}
-            <Box sx={{ 
-              position: 'absolute', 
-              top: 20, 
-              right: 20 
-            }}>
-              <img
-                src={arrow}
-                alt="Arrow"
-                style={{
-                  width: 20,
-                  height: 20,
-                  objectFit: 'contain',
+              {/* Button Text */}
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 600, 
+                  fontSize: { 
+                    xs: '1.25rem', 
+                    sm: '1.5rem', 
+                    md: '1.75rem' 
+                  }, 
+                  mt: { xs: 8, md: 10 },
+                  textAlign: 'left',
+                  pl: { xs: 1, md: 0 }
                 }}
-              />
-            </Box>
-          </Button>
-        </Card>
+              >
+                Start a New Case
+              </Typography>
+
+              {/* Arrow Icon */}
+              <Box sx={{ 
+                position: 'absolute', 
+                top: { xs: 15, md: 20 }, 
+                right: { xs: 15, md: 20 } 
+              }}>
+                <img
+                  src={arrow}
+                  alt="Arrow"
+                  style={{
+                    width: isMobile ? 16 : 20,
+                    height: isMobile ? 16 : 20,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
+            </Button>
+          </Card>
+        </Grid>
 
         {/* Report Questionnaire Button */}
-        <Card
-          sx={{
-            borderRadius: 3,
-            background: 'linear-gradient(135deg, rgba(193,160,249,1) 0%, rgba(56,135,225,1) 100%)',
-            boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
-            position: 'relative',
-            overflow: 'hidden',
-            width: '500px',
-            height: '140px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            '&:hover': {
-              boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-            }
-          }}
-        >
-          <Button 
-            variant="contained" 
-            size="large" 
+        <Grid item xs={12} md={6}>
+          <Card
             sx={{
-              width: '100%',
-              height: '100%',
-              background: 'transparent',
-              fontSize: '18px',
-              fontWeight: 600,
-              borderRadius: 3,
-              textTransform: 'none',
-              color: 'white',
+              borderRadius: { xs: 2, md: 3 },
+              background: 'linear-gradient(135deg, rgba(193,160,249,1) 0%, rgba(56,135,225,1) 100%)',
+              boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
               position: 'relative',
-              justifyContent: 'flex-start',
+              overflow: 'hidden',
+              width: '100%',
+              height: actionButtonHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               '&:hover': {
-                background: 'transparent',
+                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
               }
             }}
           >
-            {/* Question Icon - Top Left */}
-            <Box sx={{ 
-              position: 'absolute', 
-              top: 20, 
-              left: 20 
-            }}>
-              <img
-                src={question}
-                alt="Question"
-                style={{
-                  width: 24,
-                  height: 24,
-                  objectFit: 'contain',
-                }}
-              />
-            </Box>
+            <Button 
+              variant="contained" 
+              size="large" 
+              sx={{
+                width: '100%',
+                height: '100%',
+                background: 'transparent',
+                fontSize: { xs: '16px', sm: '18px' },
+                fontWeight: 600,
+                borderRadius: { xs: 2, md: 3 },
+                textTransform: 'none',
+                color: 'white',
+                position: 'relative',
+                justifyContent: 'flex-start',
+                '&:hover': {
+                  background: 'transparent',
+                }
+              }}
+            >
+              {/* Question Icon */}
+              <Box sx={{ 
+                position: 'absolute', 
+                top: { xs: 15, md: 20 }, 
+                left: { xs: 15, md: 20 } 
+              }}>
+                <img
+                  src={question}
+                  alt="Question"
+                  style={{
+                    width: isMobile ? 20 : 24,
+                    height: isMobile ? 20 : 24,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
 
-            {/* Button Text */}
-            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '28px', mt: 10 }}>
-              Report Questionnaire
-            </Typography>
-
-            {/* Arrow Icon - Top Right */}
-            <Box sx={{ 
-              position: 'absolute', 
-              top: 20, 
-              right: 20 
-            }}>
-              <img
-                src={arrow}
-                alt="Arrow"
-                style={{
-                  width: 20,
-                  height: 20,
-                  objectFit: 'contain',
+              {/* Button Text */}
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 600, 
+                  fontSize: { 
+                    xs: '1.25rem', 
+                    sm: '1.5rem', 
+                    md: '1.75rem' 
+                  }, 
+                  mt: { xs: 8, md: 10 },
+                  textAlign: 'left',
+                  pl: { xs: 1, md: 0 }
                 }}
-              />
-            </Box>
-          </Button>
-        </Card>
-      </Box>
+              >
+                Report Questionnaire
+              </Typography>
+
+              {/* Arrow Icon */}
+              <Box sx={{ 
+                position: 'absolute', 
+                top: { xs: 15, md: 20 }, 
+                right: { xs: 15, md: 20 } 
+              }}>
+                <img
+                  src={arrow}
+                  alt="Arrow"
+                  style={{
+                    width: isMobile ? 16 : 20,
+                    height: isMobile ? 16 : 20,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
+            </Button>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* History Section */}
       <Box sx={{ 
@@ -282,37 +352,41 @@ const Home: React.FC = () => {
         overflow: 'hidden',
         width: '100%',
         background: 'white',
-        borderRadius: 3,
+        borderRadius: { xs: 2, md: 3 },
         border: '1px solid #e2e8f0',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}>
         {/* History Header */}
         <Box sx={{ 
-          p: 1, 
-          pb: 2, 
+          p: { xs: 1.5, md: 2 }, 
+          pb: { xs: 1.5, md: 2 }, 
           borderBottom: '1px solid #f1f5f9',
           flexShrink: 0 
         }}>
           <Typography 
-            variant="h5" 
+            variant={isMobile ? "h6" : "h5"} 
             sx={{ 
               fontWeight: 600, 
               color: 'rgba(14, 97, 192, 1)', 
-              fontSize: '24px',
+              fontSize: { 
+                xs: '1.25rem', 
+                sm: '1.5rem', 
+                md: '1.75rem' 
+              },
             }}
           >
             History
           </Typography>
         </Box>
         
-        {/* History Items Container - Fits Available Space */}
+        {/* History Items Container */}
         <Box sx={{ 
           flex: 1, 
           overflow: 'hidden',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          p: 3,
+          p: { xs: 2, md: 3 },
           pt: 0,
         }}>
           <Box sx={{ 
@@ -337,8 +411,8 @@ const Home: React.FC = () => {
               <Card 
                 key={item.id} 
                 sx={{ 
-                  mb: 2, 
-                  borderRadius: 2,
+                  mb: { xs: 1.5, md: 2 }, 
+                  borderRadius: { xs: 1.5, md: 2 },
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                   '&:hover': {
@@ -350,17 +424,17 @@ const Home: React.FC = () => {
                   mt: 1,
                 }}
               >
-                {/* Blue ID Badge - Positioned Above and Inside */}
+                {/* Blue ID Badge */}
                 <Box sx={{
                   position: 'absolute',
                   top: -10,
-                  left: 12,
+                  left: { xs: 8, md: 12 },
                   background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
                   color: 'white',
-                  px: 3.5,
+                  px: { xs: 2, md: 3.5 },
                   py: 0.5,
                   borderRadius: 1,
-                  fontSize: '12px',
+                  fontSize: { xs: '11px', md: '12px' },
                   fontWeight: 600,
                   boxShadow: '0 2px 4px rgba(14, 97, 192, 0.3)',
                   zIndex: 1,
@@ -368,13 +442,32 @@ const Home: React.FC = () => {
                   {item.id}
                 </Box>
 
-                <CardContent sx={{ p: 2, '&:last-child': { pb: 1 }, pt: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
-                    <Box sx={{ flex: 1, mt: 0.5 }}>
+                <CardContent sx={{ 
+                  p: { xs: 1.5, md: 2 }, 
+                  '&:last-child': { 
+                    pb: { xs: 1.5, md: 1 } 
+                  }, 
+                  pt: { xs: 2, md: 2 } 
+                }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'flex-start', 
+                    width: '100%',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                  }}>
+                    <Box sx={{ 
+                      flex: 1, 
+                      mt: { xs: 0, sm: 0.5 } 
+                    }}>
                       <Typography 
                         variant="body2" 
                         color="#64748b"
-                        sx={{ fontSize: '13px', lineHeight: 1.4 }}
+                        sx={{ 
+                          fontSize: { xs: '12px', md: '13px' }, 
+                          lineHeight: 1.4 
+                        }}
                       >
                         {item.name} - {item.condition} | {item.location}
                       </Typography>
@@ -385,9 +478,10 @@ const Home: React.FC = () => {
                       sx={{
                         color: 'rgba(14, 97, 192, 1)',
                         fontWeight: 500,
-                        fontSize: '17px',
-                        minWidth: '70px',
-                        height: '20px',
+                        fontSize: { xs: '12px', md: '13px' },
+                        minWidth: { xs: '60px', md: '70px' },
+                        height: { xs: '24px', md: '28px' },
+                        mt: { xs: 0.5, sm: 0 }
                       }}
                     />
                   </Box>

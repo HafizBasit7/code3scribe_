@@ -1,10 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   Box,
   Typography,
   TextField,
   Button,
   IconButton,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 
@@ -15,8 +17,12 @@ interface OTPVerificationProps {
 const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
   const [code, setCode] = useState(['', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
-  const handleCodeChange = (index: number, value: string) => {
+  const handleCodeChange = useCallback((index: number, value: string) => {
     if (value.length <= 1 && /^\d*$/.test(value)) {
       const newCode = [...code];
       newCode[index] = value;
@@ -27,39 +33,71 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
         inputRefs.current[index + 1]?.focus();
       }
     }
-  };
+  }, [code]);
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
-  };
+  }, [code]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     console.log('Verification code:', code.join(''));
     onNavigate('create-password');
-  };
+  }, [code, onNavigate]);
+
+  const handleBack = useCallback(() => {
+    onNavigate('forgot-password');
+  }, [onNavigate]);
+
+  const otpInputSize = isMobile ? 45 : isTablet ? 55 : 60;
+  const otpFontSize = isMobile ? '18px' : isTablet ? '20px' : '24px';
+  const otpPadding = isMobile ? '8px' : '12px';
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-        <IconButton onClick={() => onNavigate('forgot-password')} sx={{ mr: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 3, md: 4 } }}>
+        <IconButton 
+          onClick={handleBack} 
+          sx={{ mr: 2 }}
+          size={isMobile ? "small" : "medium"}
+        >
           <ArrowBack />
         </IconButton>
       </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" sx={{ color: '#2196F3', fontWeight: 500, mb: 2 }}>
+      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+        <Typography 
+          variant={isMobile ? "h4" : "h3"} 
+          sx={{ 
+            color: '#2196F3', 
+            fontWeight: 500, 
+            mb: 2,
+            fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
+          }}
+        >
           Enter Verification Code
         </Typography>
-        <Typography variant="body1" sx={{ color: '#666' }}>
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: '#666',
+            fontSize: { xs: '0.9rem', sm: '1rem' }
+          }}
+        >
           We've sent a code to <strong>hello.user@code3scribe.com</strong>
         </Typography>
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <Box sx={{ display: 'flex', gap: 2, mb: 4, justifyContent: 'center' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: { xs: 1, sm: 2 }, 
+          mb: { xs: 3, md: 4 }, 
+          justifyContent: 'center',
+          flexWrap: 'wrap'
+        }}>
           {code.map((digit, index) => (
             <TextField
               key={index}
@@ -71,26 +109,39 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
                 maxLength: 1,
                 style: { 
                   textAlign: 'center', 
-                  fontSize: '24px', 
+                  fontSize: otpFontSize, 
                   fontWeight: 600,
-                  padding: '12px'
+                  padding: otpPadding
                 },
               }}
               sx={{
-                width: 60,
+                width: otpInputSize,
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                 },
               }}
+              size={isMobile ? "small" : "medium"}
             />
           ))}
         </Box>
 
-        <Typography variant="body2" sx={{ textAlign: 'center', color: '#666', mb: 4 }}>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            textAlign: 'center', 
+            color: '#666', 
+            mb: { xs: 3, md: 4 },
+            fontSize: { xs: '0.875rem', sm: '0.9rem' }
+          }}
+        >
           Didn't get a code?{' '}
           <Button
             variant="text"
-            sx={{ color: '#2196F3', fontWeight: 600 }}
+            sx={{ 
+              color: '#2196F3', 
+              fontWeight: 600,
+              fontSize: { xs: '0.875rem', sm: '0.9rem' }
+            }}
           >
             Click to resend.
           </Button>
@@ -100,11 +151,12 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
           fullWidth
           type="submit"
           variant="contained"
+          size={isMobile ? "medium" : "large"}
           sx={{
-            py: 2,
+            py: { xs: 1.5, sm: 2 },
             borderRadius: 2,
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            fontSize: '16px',
+            fontSize: { xs: '14px', sm: '16px' },
             fontWeight: 600,
           }}
         >

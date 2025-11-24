@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import AuthLayout from '../components/layout/AuthLayout';
 import LoginForm from '../components/auth/LoginForm';
 import SignUpForm from '../components/auth/SignUpForm';
@@ -24,22 +24,22 @@ const AuthNavigator: React.FC<AuthNavigatorProps> = ({
   navigate, 
   onLogin 
 }) => {
-  const handleLoginSubmit = (data: LoginFormData) => {
+  const handleLoginSubmit = useCallback((data: LoginFormData) => {
     console.log('Login data:', data);
     onLogin();
-  };
+  }, [onLogin]);
 
-  const handleSignUpSubmit = (data: SignUpFormData) => {
+  const handleSignUpSubmit = useCallback((data: SignUpFormData) => {
     console.log('SignUp data:', data);
     navigate('signup-step2');
-  };
+  }, [navigate]);
 
-  const handleOnboardingSubmit = (data: OnboardingFormData) => {
+  const handleOnboardingSubmit = useCallback((data: OnboardingFormData) => {
     console.log('Onboarding data:', data);
     onLogin();
-  };
+  }, [onLogin]);
 
-  const renderScreen = () => {
+  const renderScreen = useCallback(() => {
     switch (currentScreen) {
       case 'login':
         return (
@@ -76,7 +76,7 @@ const AuthNavigator: React.FC<AuthNavigatorProps> = ({
           />
         );
     }
-  };
+  }, [currentScreen, navigate, handleLoginSubmit, handleSignUpSubmit, handleOnboardingSubmit]);
 
   return <AuthLayout>{renderScreen()}</AuthLayout>;
 };
