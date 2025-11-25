@@ -22,9 +22,67 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
     agencyType: '',
   });
 
-  const softwareOptions = ['ePCR Pro', 'MedFlow'];
-  const roleOptions = ['User', 'Admin'];
-  const agencyTypeOptions = ['Fire Department', 'EMS Service'];
+  const softwareOptions = [
+  'ESO Suite',
+  'ImageTrend Elite',
+  'ZOLL emsCharts',
+  'ZOLL Online',
+  'TraumaSoft',
+  'AngelTrack',
+  'FirstWatch',
+  'Aladtec',
+  'iPCR (Forté)',
+  'Firehouse (ESO)',
+  'StreetEMS (Digitech)',
+  'AmbuPro EMS',
+  'TabletPCR',
+  'Beyond Lucid Tech',
+  'Operative IQ',
+  'ThinkParamedic',
+  'SmartEMS',
+  'Logis Solutions',
+  'Golden Hour',
+  'Medusa Siren Suite',
+  'SafetyPAD (ZOLL)',
+  'EMS Charts (ZOLL)',
+  'Ambulance Charting Software',
+  'EMS eSchedule',
+  'EmergencyReporting.com',
+  'ESO EHR',
+  'ImageTrend Rescue',
+  'ZOLL Dispatch/CAD',
+  'TCP Software',
+  'PeerConnect'
+];
+
+const roleOptions = [
+  'EMT-B (Basic)',
+  'EMT-A (Advanced)',
+  'Paramedic (EMT-P)',
+  'Critical Care Paramedic (CCP-C/FP-C)',
+  'EMS Supervisor / Field Training Officer (FTO)',
+  'Firefighter-EMT',
+  'Firefighter-Paramedic',
+  'Medical Director / Physician',
+  'Nurse (Flight / MICN / EMS-related)',
+  'Dispatcher / Communications Personnel',
+  'Student (EMT/Paramedic Program)',
+  'Other (Please Specify)',
+];
+
+  const agencyTypeOptions = [
+  '911 Emergency Response (Municipal/County)',
+  'Fire Department-based EMS',
+  'Private Ambulance (911 or IFT)',
+  'Air Medical / Flight EMS',
+  'Tactical EMS / Law Enforcement Support',
+  'Hospital-based Transport',
+  'Volunteer / Rural EMS',
+  'Military or DoD EMS',
+  'Training/Education Program',
+  'Other (Please Specify)',
+];
+
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -42,14 +100,14 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
 
   return (
     <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 500 } }}>
-      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+      <Box sx={{ mb: { xs: 3, md: 3 } }}>
         <Typography 
           variant={isMobile ? "h4" : "h3"} 
           sx={{ 
             color: '#2196F3', 
             fontWeight: 500, 
             mb: 2,
-            fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
+            fontSize: { xs: '1.5rem', sm: '1.5rem', md: '2rem' }
           }}
         >
           Almost there
@@ -58,7 +116,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
           variant="body1" 
           sx={{ 
             color: '#666',
-            fontSize: { xs: '0.9rem', sm: '1rem' }
+            fontSize: { xs: '0.9rem', sm: '0.9rem' }
           }}
         >
           Wrap up the signup to start using your account.
@@ -66,7 +124,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -97,7 +155,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
           </TextField>
         </Box>
 
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -138,7 +196,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
               fontSize: { xs: '0.875rem', sm: '0.9rem' }
             }}
           >
-            What type of agency do you work for?
+            Which EMS Software in use?
           </Typography>
           <TextField
             select

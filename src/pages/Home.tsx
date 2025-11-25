@@ -14,8 +14,11 @@ import mic from '../assets/icons/mic.png';
 import question from '../assets/icons/question.png';
 import arrow from '../assets/icons/arrow.png';
 import { Grid as MuiGrid } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../config/routes';
 
 const Home: React.FC = () => {
+   const navigate = useNavigate();
 const Grid = MuiGrid as React.ComponentType<any>;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -148,201 +151,230 @@ const Grid = MuiGrid as React.ComponentType<any>;
       </Card>
 
       {/* Buttons Section with Icons */}
-      <Grid 
-        container 
-        spacing={{ xs: 2, md: 3 }} 
-        sx={{ 
-          mb: { xs: 1, md: 2 }, 
-          flexShrink: 0,
+     {/* Buttons Section with Icons */}
+<Grid 
+  container 
+  spacing={{ xs: 2, md: 3 }} 
+  sx={{ 
+    mb: { xs: 1, md: 2 }, 
+    flexShrink: 0,
+    width: '100%',
+  }}
+>
+  {/* Start a New Case Button */}
+  <Grid item xs={12} md={6}>
+    <Card
+      sx={{
+        borderRadius: { xs: 2, md: 3 },
+        background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
+        boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
+        position: 'relative',
+        overflow: 'hidden',
+        width: '100%',
+        minWidth: '100%', // Ensure full width
+        height: actionButtonHeight,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        '&:hover': {
+          boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+        }
+      }}
+    >
+      <Button 
+        variant="contained" 
+        size="large" 
+        onClick={() => navigate(ROUTES.VOICE_RECORDING)}
+        sx={{
           width: '100%',
+          minWidth: '100%', // Ensure full width
+          height: '100%',
+          minHeight: '100%', // Ensure full height
+          background: 'transparent',
+          fontSize: { xs: '16px', sm: '18px' },
+          fontWeight: 600,
+          borderRadius: { xs: 2, md: 3 },
+          textTransform: 'none',
+          color: 'white',
+          position: 'relative',
+          justifyContent: 'flex-start',
+          padding: 8, // Remove default padding
+          margin: 0, // Remove default margin
+          '&:hover': {
+            background: 'transparent',
+          }
         }}
       >
-        {/* Start a New Case Button */}
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              borderRadius: { xs: 2, md: 3 },
-              background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
-              boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
-              position: 'relative',
-              overflow: 'hidden',
-              width: '100%',
-              height: actionButtonHeight,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              '&:hover': {
-                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-              }
+        {/* Mic Icon */}
+        <Box sx={{ 
+          position: 'absolute', 
+          top: { xs: 15, md: 20 }, 
+          left: { xs: 15, md: 20 } 
+        }}>
+          <img
+            src={mic}
+            alt="Microphone"
+            style={{
+              width: isMobile ? 20 : 24,
+              height: isMobile ? 20 : 24,
+              objectFit: 'contain',
+            }}
+          />
+        </Box>
+
+        {/* Button Text - Centered properly */}
+        <Box sx={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
+        }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600, 
+              fontSize: { 
+                xs: '1.25rem', 
+                sm: '1.5rem', 
+                md: '1.75rem' 
+              }, 
+              textAlign: 'center',
+              width: '100%'
             }}
           >
-            <Button 
-              variant="contained" 
-              size="large" 
-              sx={{
-                width: '100%',
-                height: '100%',
-                background: 'transparent',
-                fontSize: { xs: '16px', sm: '18px' },
-                fontWeight: 600,
-                borderRadius: { xs: 2, md: 3 },
-                textTransform: 'none',
-                color: 'white',
-                position: 'relative',
-                justifyContent: 'flex-start',
-                '&:hover': {
-                  background: 'transparent',
-                }
-              }}
-            >
-              {/* Mic Icon */}
-              <Box sx={{ 
-                position: 'absolute', 
-                top: { xs: 15, md: 20 }, 
-                left: { xs: 15, md: 20 } 
-              }}>
-                <img
-                  src={mic}
-                  alt="Microphone"
-                  style={{
-                    width: isMobile ? 20 : 24,
-                    height: isMobile ? 20 : 24,
-                    objectFit: 'contain',
-                  }}
-                />
-              </Box>
+            Start a New Case
+          </Typography>
+        </Box>
 
-              {/* Button Text */}
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 600, 
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.5rem', 
-                    md: '1.75rem' 
-                  }, 
-                  mt: { xs: 8, md: 10 },
-                  textAlign: 'left',
-                  pl: { xs: 1, md: 0 }
-                }}
-              >
-                Start a New Case
-              </Typography>
+        {/* Arrow Icon */}
+        <Box sx={{ 
+          position: 'absolute', 
+          top: { xs: 15, md: 20 }, 
+          right: { xs: 15, md: 20 } 
+        }}>
+          <img
+            src={arrow}
+            alt="Arrow"
+            style={{
+              width: isMobile ? 16 : 20,
+              height: isMobile ? 16 : 20,
+              objectFit: 'contain',
+            }}
+          />
+        </Box>
+      </Button>
+    </Card>
+  </Grid>
 
-              {/* Arrow Icon */}
-              <Box sx={{ 
-                position: 'absolute', 
-                top: { xs: 15, md: 20 }, 
-                right: { xs: 15, md: 20 } 
-              }}>
-                <img
-                  src={arrow}
-                  alt="Arrow"
-                  style={{
-                    width: isMobile ? 16 : 20,
-                    height: isMobile ? 16 : 20,
-                    objectFit: 'contain',
-                  }}
-                />
-              </Box>
-            </Button>
-          </Card>
-        </Grid>
+  {/* Report Questionnaire Button */}
+  <Grid item xs={12} md={6}>
+    <Card
+      sx={{
+        borderRadius: { xs: 2, md: 3 },
+        background: 'linear-gradient(135deg, rgba(193,160,249,1) 0%, rgba(56,135,225,1) 100%)',
+        boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
+        position: 'relative',
+        overflow: 'hidden',
+        width: '100%',
+        minWidth: '100%', // Ensure full width
+        height: actionButtonHeight,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        '&:hover': {
+          boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+        }
+      }}
+    >
+     <Button 
+        variant="contained" 
+        size="large" 
+        onClick={() => navigate(ROUTES.QUESTIONNAIRE_CHAT)}
+        sx={{
+          width: '100%',
+          minWidth: '100%', // Ensure full width
+          height: '100%',
+          minHeight: '100%', // Ensure full height
+          background: 'transparent',
+          fontSize: { xs: '16px', sm: '18px' },
+          fontWeight: 600,
+          borderRadius: { xs: 2, md: 3 },
+          textTransform: 'none',
+          color: 'white',
+          position: 'relative',
+          justifyContent: 'flex-start',
+          padding: 5.5, // Remove default padding
+          margin: 0, // Remove default margin
+          '&:hover': {
+            background: 'transparent',
+          }
+        }}
+      >
+        {/* Question Icon */}
+        <Box sx={{ 
+          position: 'absolute', 
+          top: { xs: 15, md: 20 }, 
+          left: { xs: 15, md: 20 } 
+        }}>
+          <img
+            src={question}
+            alt="Question"
+            style={{
+              width: isMobile ? 20 : 24,
+              height: isMobile ? 20 : 24,
+              objectFit: 'contain',
+            }}
+          />
+        </Box>
 
-        {/* Report Questionnaire Button */}
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              borderRadius: { xs: 2, md: 3 },
-              background: 'linear-gradient(135deg, rgba(193,160,249,1) 0%, rgba(56,135,225,1) 100%)',
-              boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
-              position: 'relative',
-              overflow: 'hidden',
-              width: '100%',
-              height: actionButtonHeight,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              '&:hover': {
-                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-              }
+        {/* Button Text - Centered properly */}
+        <Box sx={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
+        }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600, 
+              fontSize: { 
+                xs: '1.25rem', 
+                sm: '1.5rem', 
+                md: '1.75rem' 
+              }, 
+              textAlign: 'center',
+              width: '100%'
             }}
           >
-            <Button 
-              variant="contained" 
-              size="large" 
-              sx={{
-                width: '100%',
-                height: '100%',
-                background: 'transparent',
-                fontSize: { xs: '16px', sm: '18px' },
-                fontWeight: 600,
-                borderRadius: { xs: 2, md: 3 },
-                textTransform: 'none',
-                color: 'white',
-                position: 'relative',
-                justifyContent: 'flex-start',
-                '&:hover': {
-                  background: 'transparent',
-                }
-              }}
-            >
-              {/* Question Icon */}
-              <Box sx={{ 
-                position: 'absolute', 
-                top: { xs: 15, md: 20 }, 
-                left: { xs: 15, md: 20 } 
-              }}>
-                <img
-                  src={question}
-                  alt="Question"
-                  style={{
-                    width: isMobile ? 20 : 24,
-                    height: isMobile ? 20 : 24,
-                    objectFit: 'contain',
-                  }}
-                />
-              </Box>
+            Report Questionnaire
+          </Typography>
+        </Box>
 
-              {/* Button Text */}
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 600, 
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.5rem', 
-                    md: '1.75rem' 
-                  }, 
-                  mt: { xs: 8, md: 10 },
-                  textAlign: 'left',
-                  pl: { xs: 1, md: 0 }
-                }}
-              >
-                Report Questionnaire
-              </Typography>
-
-              {/* Arrow Icon */}
-              <Box sx={{ 
-                position: 'absolute', 
-                top: { xs: 15, md: 20 }, 
-                right: { xs: 15, md: 20 } 
-              }}>
-                <img
-                  src={arrow}
-                  alt="Arrow"
-                  style={{
-                    width: isMobile ? 16 : 20,
-                    height: isMobile ? 16 : 20,
-                    objectFit: 'contain',
-                  }}
-                />
-              </Box>
-            </Button>
-          </Card>
-        </Grid>
-      </Grid>
+        {/* Arrow Icon */}
+        <Box sx={{ 
+          position: 'absolute', 
+          top: { xs: 15, md: 20 }, 
+          right: { xs: 15, md: 20 } 
+        }}>
+          <img
+            src={arrow}
+            alt="Arrow"
+            style={{
+              width: isMobile ? 16 : 20,
+              height: isMobile ? 16 : 20,
+              objectFit: 'contain',
+            }}
+          />
+        </Box>
+      </Button>
+    </Card>
+  </Grid>
+</Grid>
 
       {/* History Section */}
       <Box sx={{ 

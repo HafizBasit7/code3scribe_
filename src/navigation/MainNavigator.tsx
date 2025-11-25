@@ -5,14 +5,16 @@ import Home from '../pages/Home';
 import Subscription from '../pages/Subscription';
 import PrivacyPolicy from '../pages/PrivacyPolicy';
 import Profile from '../pages/Profile';
+import TermsAndConditions from '../pages/TermsAndConditions';
+import HIPAADisclaimer from '../pages/HIPAADisclaimer';
+import FAQPage from '../pages/FAQPage';
+import QuestionnaireChat from '../pages/QuestionnaireChat';
+import VoiceRecording from '../pages/VoiceRecording.tsx';
+import VoiceChat from '../pages/VoiceChat';
 import { ROUTES } from '../config/routes';
 
 
-// Import other pages as you create them
-// import ProtocolHub from '../pages/ProtocolHub';
-// import FindJobs from '../pages/FindJobs';
-// import TermsConditions from '../pages/TermsConditions';
-// etc.
+
 
 interface MainNavigatorProps {
   onLogout: () => void;
@@ -27,7 +29,25 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ onLogout }) => {
             <Home />
           </Layout>
         } />
+
+        <Route path={ROUTES.QUESTIONNAIRE_CHAT} element={
+          <Layout onLogout={onLogout}>
+            <QuestionnaireChat />
+          </Layout>
+        } />
+
+        <Route path={ROUTES.VOICE_RECORDING} element={
+  <Layout onLogout={onLogout}>
+    <VoiceRecording />
+  </Layout>
+} />
         
+        <Route path={ROUTES.VOICE_CHAT} element={
+  <Layout onLogout={onLogout}>
+    <VoiceChat />
+  </Layout>
+} />
+
         <Route path={ROUTES.SUBSCRIPTION} element={
           <Layout onLogout={onLogout}>
             <Subscription />
@@ -62,19 +82,19 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ onLogout }) => {
         
         <Route path={ROUTES.FAQ} element={
           <Layout onLogout={onLogout}>
-            <div>FAQ Page</div>
+            <FAQPage />
           </Layout>
         } />
         
         <Route path={ROUTES.LEGAL.TERMS_CONDITIONS} element={
           <Layout onLogout={onLogout}>
-            <div>Terms & Conditions Page</div>
+            <TermsAndConditions />
           </Layout>
         } />
         
         <Route path={ROUTES.LEGAL.HIPAA_DISCLAIMER} element={
           <Layout onLogout={onLogout}>
-            <div>HIPAA Disclaimer Page</div>
+            <HIPAADisclaimer />
           </Layout>
         } />
         

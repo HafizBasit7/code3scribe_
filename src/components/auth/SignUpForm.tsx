@@ -4,25 +4,24 @@ import {
   Typography,
   TextField,
   Button,
-
   InputAdornment,
   IconButton,
   Tooltip,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+
 } from '@mui/material';
-import { Grid as MuiGrid } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import type { SignUpFormData } from '../../types/auth';
+import { Grid as MuiGrid } from '@mui/material';
 
 interface SignUpFormProps {
-
   onNavigate: (screen: string) => void;
   onSubmit: (data: SignUpFormData) => void;
 }
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
-  const Grid = MuiGrid as React.ComponentType<any>;
+   const Grid = MuiGrid as React.ComponentType<any>;
   const [formData, setFormData] = useState<SignUpFormData>({
     firstName: '',
     lastName: '',
@@ -57,15 +56,19 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
   }, []);
 
   return (
-    <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 500 } }}>
-      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+    <Box sx={{ 
+      width: '100%', 
+      maxWidth: { xs: '100%', sm: 500, md: 450, lg: 500 },
+      boxSizing: 'border-box'
+    }}>
+      <Box sx={{ mb: { xs: 3, md: 3 } }}>
         <Typography 
           variant={isMobile ? "h4" : "h3"} 
           sx={{ 
             color: '#2196F3', 
             fontWeight: 500, 
             mb: 2,
-            fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
+            fontSize: { xs: '1.5rem', sm: '1.5rem', md: '2rem' }
           }}
         >
           Join Now
@@ -82,7 +85,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid container spacing={2} sx={{ mb: 1 }}>
           <Grid item xs={12} sm={6}>
             <Typography 
               variant="body2" 
@@ -137,7 +140,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
           </Grid>
         </Grid>
 
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -156,6 +159,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
             value={formData.email}
             onChange={handleChange('email')}
             required
+            autoComplete="email"
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -165,7 +169,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
           />
         </Box>
 
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -184,6 +188,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
             value={formData.phoneNumber}
             onChange={handleChange('phoneNumber')}
             required
+            autoComplete="tel"
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -193,7 +198,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
           />
         </Box>
 
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -252,6 +257,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
             value={formData.password}
             onChange={handleChange('password')}
             required
+            autoComplete="new-password"
             size={isMobile ? "small" : "medium"}
             InputProps={{
               endAdornment: (
@@ -274,7 +280,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
           />
         </Box>
 
-        <Box sx={{ mb: { xs: 3, md: 4 } }}>
+        <Box sx={{ mb: { xs: 3, md: 3 } }}>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -293,6 +299,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
             value={formData.confirmPassword}
             onChange={handleChange('confirmPassword')}
             required
+            autoComplete="new-password"
             size={isMobile ? "small" : "medium"}
             InputProps={{
               endAdornment: (
@@ -347,7 +354,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
               sx={{ 
                 color: '#2196F3', 
                 fontWeight: 600,
-                fontSize: { xs: '0.875rem', sm: '0.9rem' }
+                fontSize: { xs: '0.875rem', sm: '0.9rem' },
+                minWidth: 'auto',
+                p: 0,
+                ml: 0.5
               }}
             >
               Login
@@ -356,7 +366,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onNavigate, onSubmit }) => {
         </Box>
 
         {/* Progress Indicator */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 1 }}>
           <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#2196F3' }} />
           <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#e0e0e0' }} />
         </Box>

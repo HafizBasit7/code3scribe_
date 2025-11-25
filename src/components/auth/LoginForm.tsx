@@ -49,14 +49,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onNavigate, onSubmit }) => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ mb: { xs: 3, md: 4 } }}>
+      <Box sx={{ mb: { xs: 3, md: 3 } }}>
         <Typography 
           variant={isMobile ? "h4" : "h3"} 
           sx={{ 
             color: '#2196F3', 
             fontWeight: 500, 
-            mb: 2,
-            fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
+            mb: 1,
+            fontSize: { xs: '1.5rem', sm: '1.5rem', md: '1.75rem' }
           }}
         >
           Welcome Back
@@ -73,14 +73,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onNavigate, onSubmit }) => {
       </Box>
 
       <form onSubmit={handleSubmit} autoComplete="off">
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Typography 
             variant="body2" 
             sx={{ 
               color: '#333', 
               fontWeight: 500, 
               mb: 1,
-              fontSize: { xs: '0.875rem', sm: '0.9rem' }
+              fontSize: { xs: '0.875rem', sm: '0.8rem' },
+              width: '100%'
             }}
           >
             Email address
@@ -103,7 +104,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onNavigate, onSubmit }) => {
           />
         </Box>
 
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 1 }}>
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -117,7 +118,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onNavigate, onSubmit }) => {
               sx={{ 
                 color: '#333', 
                 fontWeight: 500,
-                fontSize: { xs: '0.875rem', sm: '0.9rem' }
+                fontSize: { xs: '0.875rem', sm: '0.8rem' }
               }}
             >
               Password
@@ -191,7 +192,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onNavigate, onSubmit }) => {
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
-          mb: 4, 
+          mb: 1, 
           width: '100%',
           flexWrap: { xs: 'wrap', sm: 'nowrap' },
           gap: { xs: 1, sm: 0 }
