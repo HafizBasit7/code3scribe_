@@ -1,5 +1,14 @@
 # React + TypeScript + Vite
 
+
+📸 Project Screenshots
+
+A quick visual overview of the project.
+
+Preview Gallery
+<div style="display: flex; flex-wrap: wrap; gap: 10px;"> <img src="./screenshots/medai1.png" width="48%" /> <img src="./screenshots/medai2.png" width="48%" /> <img src="./screenshots/medai3.png" width="48%" /> <img src="./screenshots/medai4.png" width="48%" /> <img src="./screenshots/medai5.png" width="48%" /> <img src="./screenshots/medai7.png" width="48%" /><img src="./screenshots/medaiLog.png" width="48%" /> <img src="./screenshots/medaiSign.png" width="48%" />   </div>
+
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
