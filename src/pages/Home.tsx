@@ -18,8 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../config/routes';
 
 const Home: React.FC = () => {
-   const navigate = useNavigate();
-const Grid = MuiGrid as React.ComponentType<any>;
+  const navigate = useNavigate();
+  const Grid = MuiGrid as React.ComponentType<any>;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
@@ -33,9 +33,9 @@ const Grid = MuiGrid as React.ComponentType<any>;
       time: '1 day ago'
     },
     {
-      id: 'ID-34566', 
+      id: 'ID-34566',
       name: 'Emily Davis',
-      condition: 'Car Accident', 
+      condition: 'Car Accident',
       location: 'Highway 21',
       time: '2 days ago'
     },
@@ -43,7 +43,7 @@ const Grid = MuiGrid as React.ComponentType<any>;
       id: 'ID-34565',
       name: 'Liam Harris',
       condition: 'Fracture Injury',
-      location: 'Sports Complex', 
+      location: 'Sports Complex',
       time: '3 days ago'
     },
     {
@@ -62,15 +62,15 @@ const Grid = MuiGrid as React.ComponentType<any>;
     }
   ];
 
-//   const actionButtonWidth = isMobile ? '100%' : isTablet ? '100%' : '500px';
+  //   const actionButtonWidth = isMobile ? '100%' : isTablet ? '100%' : '500px';
   const actionButtonHeight = isMobile ? '120px' : '140px';
   const robotImageSize = isMobile ? 100 : isTablet ? 120 : 150;
 
   return (
-    <Box sx={{ 
-      p: { xs: 1, sm: 2, md: 3 }, 
-      flex: 1, 
-      display: 'flex', 
+    <Box sx={{
+      p: { xs: 1, sm: 2, md: 3 },
+      flex: 1,
+      display: 'flex',
       flexDirection: 'column',
       height: '100%',
       width: '100%',
@@ -78,9 +78,9 @@ const Grid = MuiGrid as React.ComponentType<any>;
       overflow: 'hidden',
     }}>
       {/* Welcome Card with Robot Image */}
-      <Card 
-        sx={{ 
-          mb: { xs: 1, md: 2 }, 
+      <Card
+        sx={{
+          mb: { xs: 1, md: 2 },
           borderRadius: { xs: 2, md: 3 },
           background: 'white',
           border: '1px solid #e2e8f0',
@@ -91,36 +91,36 @@ const Grid = MuiGrid as React.ComponentType<any>;
           width: '100%',
         }}
       >
-        <CardContent sx={{ 
-          p: { xs: 1, md: 1.5 }, 
-          '&:last-child': { 
-            pb: { xs: 1, md: 1.5 } 
-          } 
+        <CardContent sx={{
+          p: { xs: 1, md: 1.5 },
+          '&:last-child': {
+            pb: { xs: 0.5, md: 1.5 }
+          }
         }}>
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             width: '100%',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'row', sm: 'row' },
             textAlign: { xs: 'center', sm: 'left' }
           }}>
-            <Box sx={{ 
+            <Box sx={{
               flex: 1,
               order: { xs: 2, sm: 1 },
-              mt: { xs: 2, sm: 0 }
+              mt: { xs: 1, sm: 0 }
             }}>
-              <Typography 
-                variant={isMobile ? "h4" : isTablet ? "h3" : "h2"} 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: 'rgba(14, 97, 192, 1)', 
+              <Typography
+                variant={isMobile ? "h4" : isTablet ? "h3" : "h2"}
+                sx={{
+                  fontWeight: 600,
+                  color: 'rgba(14, 97, 192, 1)',
                   mb: 0,
-                  fontSize: { 
-                    xs: '1.75rem', 
-                    sm: '2.125rem', 
+                  fontSize: {
+                    xs: '1.75rem',
+                    sm: '2.125rem',
                     md: '2.5rem',
-                    lg: '3rem' 
+                    lg: '3rem'
                   },
                   ml: { xs: 0, sm: 3 },
                   lineHeight: { xs: 1.3, md: 1.2 }
@@ -130,11 +130,11 @@ const Grid = MuiGrid as React.ComponentType<any>;
                 Today?
               </Typography>
             </Box>
-            <Box sx={{ 
-              flexShrink: 0, 
+            <Box sx={{
+              flexShrink: 0,
               ml: { xs: 0, sm: 3 },
               mr: { xs: 0, sm: 3 },
-              order: { xs: 1, sm: 2 }
+              order: { xs: 2, sm: 2 }
             }}>
               <img
                 src="/assets/images/robo.png"
@@ -151,236 +151,235 @@ const Grid = MuiGrid as React.ComponentType<any>;
       </Card>
 
       {/* Buttons Section with Icons */}
-     {/* Buttons Section with Icons */}
-<Grid 
-  container 
-  spacing={{ xs: 2, md: 3 }} 
-  sx={{ 
-    mb: { xs: 1, md: 2 }, 
-    flexShrink: 0,
-    width: '100%',
-  }}
->
-  {/* Start a New Case Button */}
-  <Grid item xs={12} md={6}>
-    <Card
-      sx={{
-        borderRadius: { xs: 2, md: 3 },
-        background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
-        boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
-        position: 'relative',
-        overflow: 'hidden',
-        width: '100%',
-        minWidth: '100%', // Ensure full width
-        height: actionButtonHeight,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        '&:hover': {
-          boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-        }
-      }}
-    >
-      <Button 
-        variant="contained" 
-        size="large" 
-        onClick={() => navigate(ROUTES.VOICE_RECORDING)}
+      <Grid
+        container
+        spacing={{ xs: 2, md: 3 }}
         sx={{
+          mb: { xs: 1, md: 2 },
+          flexShrink: 0,
           width: '100%',
-          minWidth: '100%', // Ensure full width
-          height: '100%',
-          minHeight: '100%', // Ensure full height
-          background: 'transparent',
-          fontSize: { xs: '16px', sm: '18px' },
-          fontWeight: 600,
-          borderRadius: { xs: 2, md: 3 },
-          textTransform: 'none',
-          color: 'white',
-          position: 'relative',
-          justifyContent: 'flex-start',
-          padding: 8, // Remove default padding
-          margin: 0, // Remove default margin
-          '&:hover': {
-            background: 'transparent',
-          }
         }}
       >
-        {/* Mic Icon */}
-        <Box sx={{ 
-          position: 'absolute', 
-          top: { xs: 15, md: 20 }, 
-          left: { xs: 15, md: 20 } 
-        }}>
-          <img
-            src={mic}
-            alt="Microphone"
-            style={{
-              width: isMobile ? 20 : 24,
-              height: isMobile ? 20 : 24,
-              objectFit: 'contain',
-            }}
-          />
-        </Box>
-
-        {/* Button Text - Centered properly */}
-        <Box sx={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
-        }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
-              fontSize: { 
-                xs: '1.25rem', 
-                sm: '1.5rem', 
-                md: '1.75rem' 
-              }, 
-              textAlign: 'center',
-              width: '100%'
+        {/* Start a New Case Button */}
+        <Grid item xs={12} md={6}>
+          <Card
+            sx={{
+              borderRadius: { xs: 2, md: 3 },
+              background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
+              boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
+              position: 'relative',
+              overflow: 'hidden',
+              width: '100%',
+              minWidth: '100%', // Ensure full width
+              height: actionButtonHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              '&:hover': {
+                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+              }
             }}
           >
-            Start a New Case
-          </Typography>
-        </Box>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate(ROUTES.VOICE_RECORDING)}
+              sx={{
+                width: '100%',
+                minWidth: '100%', // Ensure full width
+                height: '100%',
+                minHeight: '100%', // Ensure full height
+                background: 'transparent',
+                fontSize: { xs: '16px', sm: '18px' },
+                fontWeight: 600,
+                borderRadius: { xs: 2, md: 3 },
+                textTransform: 'none',
+                color: 'white',
+                position: 'relative',
+                justifyContent: 'flex-start',
+                padding: 8, // Remove default padding
+                margin: 0, // Remove default margin
+                '&:hover': {
+                  background: 'transparent',
+                }
+              }}
+            >
+              {/* Mic Icon */}
+              <Box sx={{
+                position: 'absolute',
+                top: { xs: 15, md: 20 },
+                left: { xs: 15, md: 20 }
+              }}>
+                <img
+                  src={mic}
+                  alt="Microphone"
+                  style={{
+                    width: isMobile ? 20 : 24,
+                    height: isMobile ? 20 : 24,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
 
-        {/* Arrow Icon */}
-        <Box sx={{ 
-          position: 'absolute', 
-          top: { xs: 15, md: 20 }, 
-          right: { xs: 15, md: 20 } 
-        }}>
-          <img
-            src={arrow}
-            alt="Arrow"
-            style={{
-              width: isMobile ? 16 : 20,
-              height: isMobile ? 16 : 20,
-              objectFit: 'contain',
-            }}
-          />
-        </Box>
-      </Button>
-    </Card>
-  </Grid>
+              {/* Button Text - Centered properly */}
+              <Box sx={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
+              }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: {
+                      xs: '1.25rem',
+                      sm: '1.5rem',
+                      md: '1.75rem'
+                    },
+                    textAlign: 'center',
+                    width: '100%'
+                  }}
+                >
+                  Start a New Case
+                </Typography>
+              </Box>
 
-  {/* Report Questionnaire Button */}
-  <Grid item xs={12} md={6}>
-    <Card
-      sx={{
-        borderRadius: { xs: 2, md: 3 },
-        background: 'linear-gradient(135deg, rgba(193,160,249,1) 0%, rgba(56,135,225,1) 100%)',
-        boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
-        position: 'relative',
-        overflow: 'hidden',
-        width: '100%',
-        minWidth: '100%', // Ensure full width
-        height: actionButtonHeight,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        '&:hover': {
-          boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-        }
-      }}
-    >
-     <Button 
-        variant="contained" 
-        size="large" 
-        onClick={() => navigate(ROUTES.QUESTIONNAIRE_CHAT)}
-        sx={{
-          width: '100%',
-          minWidth: '100%', // Ensure full width
-          height: '100%',
-          minHeight: '100%', // Ensure full height
-          background: 'transparent',
-          fontSize: { xs: '16px', sm: '18px' },
-          fontWeight: 600,
-          borderRadius: { xs: 2, md: 3 },
-          textTransform: 'none',
-          color: 'white',
-          position: 'relative',
-          justifyContent: 'flex-start',
-          padding: 5.5, // Remove default padding
-          margin: 0, // Remove default margin
-          '&:hover': {
-            background: 'transparent',
-          }
-        }}
-      >
-        {/* Question Icon */}
-        <Box sx={{ 
-          position: 'absolute', 
-          top: { xs: 15, md: 20 }, 
-          left: { xs: 15, md: 20 } 
-        }}>
-          <img
-            src={question}
-            alt="Question"
-            style={{
-              width: isMobile ? 20 : 24,
-              height: isMobile ? 20 : 24,
-              objectFit: 'contain',
-            }}
-          />
-        </Box>
+              {/* Arrow Icon */}
+              <Box sx={{
+                position: 'absolute',
+                top: { xs: 15, md: 20 },
+                right: { xs: 15, md: 20 }
+              }}>
+                <img
+                  src={arrow}
+                  alt="Arrow"
+                  style={{
+                    width: isMobile ? 16 : 20,
+                    height: isMobile ? 16 : 20,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
+            </Button>
+          </Card>
+        </Grid>
 
-        {/* Button Text - Centered properly */}
-        <Box sx={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
-        }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
-              fontSize: { 
-                xs: '1.25rem', 
-                sm: '1.5rem', 
-                md: '1.75rem' 
-              }, 
-              textAlign: 'center',
-              width: '100%'
+        {/* Report Questionnaire Button */}
+        <Grid item xs={12} md={6}>
+          <Card
+            sx={{
+              borderRadius: { xs: 2, md: 3 },
+              background: 'linear-gradient(135deg, rgba(193,160,249,1) 0%, rgba(56,135,225,1) 100%)',
+              boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
+              position: 'relative',
+              overflow: 'hidden',
+              width: '100%',
+              minWidth: '100%', // Ensure full width
+              height: actionButtonHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              '&:hover': {
+                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+              }
             }}
           >
-            Report Questionnaire
-          </Typography>
-        </Box>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate(ROUTES.QUESTIONNAIRE_CHAT)}
+              sx={{
+                width: '100%',
+                minWidth: '100%', // Ensure full width
+                height: '100%',
+                minHeight: '100%', // Ensure full height
+                background: 'transparent',
+                fontSize: { xs: '16px', sm: '18px' },
+                fontWeight: 600,
+                borderRadius: { xs: 2, md: 3 },
+                textTransform: 'none',
+                color: 'white',
+                position: 'relative',
+                justifyContent: 'flex-start',
+                padding: 5.5, // Remove default padding
+                margin: 0, // Remove default margin
+                '&:hover': {
+                  background: 'transparent',
+                }
+              }}
+            >
+              {/* Question Icon */}
+              <Box sx={{
+                position: 'absolute',
+                top: { xs: 15, md: 20 },
+                left: { xs: 15, md: 20 }
+              }}>
+                <img
+                  src={question}
+                  alt="Question"
+                  style={{
+                    width: isMobile ? 20 : 24,
+                    height: isMobile ? 20 : 24,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
 
-        {/* Arrow Icon */}
-        <Box sx={{ 
-          position: 'absolute', 
-          top: { xs: 15, md: 20 }, 
-          right: { xs: 15, md: 20 } 
-        }}>
-          <img
-            src={arrow}
-            alt="Arrow"
-            style={{
-              width: isMobile ? 16 : 20,
-              height: isMobile ? 16 : 20,
-              objectFit: 'contain',
-            }}
-          />
-        </Box>
-      </Button>
-    </Card>
-  </Grid>
-</Grid>
+              {/* Button Text - Centered properly */}
+              <Box sx={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
+              }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: {
+                      xs: '1.25rem',
+                      sm: '1.5rem',
+                      md: '1.75rem'
+                    },
+                    textAlign: 'center',
+                    width: '100%'
+                  }}
+                >
+                  Report Questionnaire
+                </Typography>
+              </Box>
+
+              {/* Arrow Icon */}
+              <Box sx={{
+                position: 'absolute',
+                top: { xs: 15, md: 20 },
+                right: { xs: 15, md: 20 }
+              }}>
+                <img
+                  src={arrow}
+                  alt="Arrow"
+                  style={{
+                    width: isMobile ? 16 : 20,
+                    height: isMobile ? 16 : 20,
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
+            </Button>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* History Section */}
-      <Box sx={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
+      <Box sx={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
         minHeight: 0,
         overflow: 'hidden',
         width: '100%',
@@ -390,31 +389,31 @@ const Grid = MuiGrid as React.ComponentType<any>;
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}>
         {/* History Header */}
-        <Box sx={{ 
-          p: { xs: 1.5, md: 2 }, 
-          pb: { xs: 1.5, md: 2 }, 
+        <Box sx={{
+          p: { xs: 1.5, md: 2 },
+          pb: { xs: 1.5, md: 2 },
           borderBottom: '1px solid #f1f5f9',
-          flexShrink: 0 
+          flexShrink: 0
         }}>
-          <Typography 
-            variant={isMobile ? "h6" : "h5"} 
-            sx={{ 
-              fontWeight: 600, 
-              color: 'rgba(14, 97, 192, 1)', 
-              fontSize: { 
-                xs: '1.25rem', 
-                sm: '1.5rem', 
-                md: '1.75rem' 
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            sx={{
+              fontWeight: 600,
+              color: 'rgba(14, 97, 192, 1)',
+              fontSize: {
+                xs: '1.25rem',
+                sm: '1.5rem',
+                md: '1.75rem'
               },
             }}
           >
             History
           </Typography>
         </Box>
-        
+
         {/* History Items Container */}
-        <Box sx={{ 
-          flex: 1, 
+        <Box sx={{
+          flex: 1,
           overflow: 'hidden',
           width: '100%',
           display: 'flex',
@@ -422,7 +421,7 @@ const Grid = MuiGrid as React.ComponentType<any>;
           p: { xs: 2, md: 3 },
           pt: 0,
         }}>
-          <Box sx={{ 
+          <Box sx={{
             flex: 1,
             overflow: 'auto',
             '&::-webkit-scrollbar': {
@@ -441,10 +440,10 @@ const Grid = MuiGrid as React.ComponentType<any>;
             }
           }}>
             {historyItems.map((item) => (
-              <Card 
-                key={item.id} 
-                sx={{ 
-                  mb: { xs: 1.5, md: 2 }, 
+              <Card
+                key={item.id}
+                sx={{
+                  mb: { xs: 1.5, md: 2 },
                   borderRadius: { xs: 1.5, md: 2 },
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
@@ -475,31 +474,31 @@ const Grid = MuiGrid as React.ComponentType<any>;
                   {item.id}
                 </Box>
 
-                <CardContent sx={{ 
-                  p: { xs: 1.5, md: 2 }, 
-                  '&:last-child': { 
-                    pb: { xs: 1.5, md: 1 } 
-                  }, 
-                  pt: { xs: 2, md: 2 } 
+                <CardContent sx={{
+                  p: { xs: 1.5, md: 2 },
+                  '&:last-child': {
+                    pb: { xs: 1.5, md: 1 }
+                  },
+                  pt: { xs: 2, md: 2 }
                 }}>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'flex-start', 
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
                     width: '100%',
                     flexDirection: { xs: 'column', sm: 'row' },
                     gap: { xs: 1, sm: 0 }
                   }}>
-                    <Box sx={{ 
-                      flex: 1, 
-                      mt: { xs: 0, sm: 0.5 } 
+                    <Box sx={{
+                      flex: 1,
+                      mt: { xs: 0, sm: 0.5 }
                     }}>
-                      <Typography 
-                        variant="body2" 
+                      <Typography
+                        variant="body2"
                         color="#64748b"
-                        sx={{ 
-                          fontSize: { xs: '12px', md: '13px' }, 
-                          lineHeight: 1.4 
+                        sx={{
+                          fontSize: { xs: '12px', md: '13px' },
+                          lineHeight: 1.4
                         }}
                       >
                         {item.name} - {item.condition} | {item.location}

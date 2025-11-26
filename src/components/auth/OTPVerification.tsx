@@ -12,9 +12,15 @@ import { ArrowBack } from '@mui/icons-material';
 
 interface OTPVerificationProps {
   onNavigate: (screen: string) => void;
+  onSuccess?: () => void;
+  flowContext?: 'signup' | 'forgot-password'; // Add this prop
 }
 
-const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
+const OTPVerification: React.FC<OTPVerificationProps> = ({ 
+  onNavigate, 
+  onSuccess,
+  flowContext = 'signup' // Default to signup
+}) => {
   const [code, setCode] = useState(['', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   
@@ -44,12 +50,36 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     console.log('Verification code:', code.join(''));
-    onNavigate('create-password');
-  }, [code, onNavigate]);
+    
+    // Call onSuccess which will handle routing based on flowContext
+    onSuccess?.();
+  }, [code, onSuccess]);
 
+  // Smart back navigation based on flow context
   const handleBack = useCallback(() => {
-    onNavigate('forgot-password');
-  }, [onNavigate]);
+    if (flowContext === 'signup') {
+      onNavigate('signup-step2');
+    } else {
+      onNavigate('forgot-password');
+    }
+  }, [flowContext, onNavigate]);
+
+  // Dynamic text based on flow context
+  const getHeaderText = () => {
+    return flowContext === 'signup' 
+      ? 'Enter Verification Code' 
+      : 'Verify Your Identity';
+  };
+
+  const getSubheaderText = () => {
+    return flowContext === 'signup'
+      ? 'We sent a code to verify your account'
+      : 'We sent a code to reset your password';
+  };
+
+  const getButtonText = () => {
+    return flowContext === 'signup' ? 'Verify & Continue' : 'Verify & Reset Password';
+  };
 
   const otpInputSize = isMobile ? 45 : isTablet ? 55 : 60;
   const otpFontSize = isMobile ? '18px' : isTablet ? '20px' : '24px';
@@ -77,7 +107,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
             fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
           }}
         >
-          Enter Verification Code
+          {getHeaderText()}
         </Typography>
         <Typography 
           variant="body1" 
@@ -86,7 +116,17 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
             fontSize: { xs: '0.9rem', sm: '1rem' }
           }}
         >
-          We've sent a code to <strong>hello.user@code3scribe.com</strong>
+          {getSubheaderText()}
+        </Typography>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: '#666',
+            fontSize: { xs: '0.8rem', sm: '0.9rem' },
+            mt: 1
+          }}
+        >
+          Code sent to: <strong>hello.user@code3scribe.com</strong>
         </Typography>
       </Box>
 
@@ -160,7 +200,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({ onNavigate }) => {
             fontWeight: 600,
           }}
         >
-          Verify
+          {getButtonText()}
         </Button>
       </form>
     </Box>

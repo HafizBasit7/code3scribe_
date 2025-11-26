@@ -12,9 +12,11 @@ import { ArrowBack } from '@mui/icons-material';
 
 interface ForgotPasswordFormProps {
   onNavigate: (screen: string) => void;
+   onSubmit?: () => void
 }
 
-const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onNavigate }) => {
+
+const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onNavigate, onSubmit }) => {
   const [email, setEmail] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -22,6 +24,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onNavigate }) =
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     console.log('Forgot password email:', email);
+    onSubmit?.();
     onNavigate('verification');
   }, [email, onNavigate]);
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import {
   Box,
   Typography,
@@ -7,10 +8,126 @@ import {
   useTheme,
   useMediaQuery
 } from '@mui/material';
+import { privacyPolicyContent } from '../data/privacyPolicyContent';
+
+// Define proper types for ReactMarkdown components
+interface MarkdownComponentProps {
+  node?: any;
+  children?: React.ReactNode;
+}
 
 const PrivacyPolicy: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Custom components for ReactMarkdown to match your design
+  const MarkdownComponents = {
+    h1: ({ node, ...props }: MarkdownComponentProps) => (
+      <Typography 
+        variant={isMobile ? "h5" : "h4"} 
+        sx={{ 
+          fontWeight: 700, 
+          color: 'rgba(54, 128, 218, 1)',
+          mb: 3,
+          mt: 4,
+          fontSize: { 
+            xs: '1.5rem', 
+            sm: '1.75rem', 
+            md: '2rem' 
+          }
+        }}
+        {...props}
+      />
+    ),
+    h2: ({ node, ...props }: MarkdownComponentProps) => (
+      <Typography 
+        variant={isMobile ? "h6" : "h5"} 
+        sx={{ 
+          fontWeight: 700, 
+          color: 'rgba(54, 128, 218, 1)',
+          mb: 2,
+          mt: 3,
+          fontSize: { 
+            xs: '1.25rem', 
+            sm: '1.375rem', 
+            md: '1.5rem' 
+          }
+        }}
+        {...props}
+      />
+    ),
+    h3: ({ node, ...props }: MarkdownComponentProps) => (
+      <Typography 
+        variant="h6" 
+        sx={{ 
+          fontWeight: 600, 
+          color: 'rgba(54, 128, 218, 0.9)',
+          mb: 1,
+          mt: 2,
+          fontSize: { 
+            xs: '1.1rem', 
+            sm: '1.2rem', 
+            md: '1.3rem' 
+          }
+        }}
+        {...props}
+      />
+    ),
+    p: ({ node, ...props }: MarkdownComponentProps) => (
+      <Typography 
+        variant="body1" 
+        sx={{ 
+          color: '#374151', 
+          lineHeight: 1.7, 
+          fontSize: { xs: '0.875rem', sm: '0.95rem' },
+          textAlign: { xs: 'left', sm: 'justify' },
+          mb: 2
+        }}
+        {...props}
+      />
+    ),
+    ul: ({ node, ...props }: MarkdownComponentProps) => (
+      <Box 
+        component="ul" 
+        sx={{ 
+          pl: 2, 
+          color: '#374151', 
+          fontSize: { xs: '0.875rem', sm: '0.95rem' },
+          mb: 2,
+          '& li': {
+            mb: 1,
+            lineHeight: 1.6
+          }
+        }}
+        {...props}
+      />
+    ),
+    ol: ({ node, ...props }: MarkdownComponentProps) => (
+      <Box 
+        component="ol" 
+        sx={{ 
+          pl: 2, 
+          color: '#374151', 
+          fontSize: { xs: '0.875rem', sm: '0.95rem' },
+          mb: 2,
+          '& li': {
+            mb: 1,
+            lineHeight: 1.6
+          }
+        }}
+        {...props}
+      />
+    ),
+    li: ({ node, ...props }: MarkdownComponentProps) => (
+      <li style={{ lineHeight: 1.6 }} {...props} />
+    ),
+    strong: ({ node, ...props }: MarkdownComponentProps) => (
+      <strong style={{ color: '#1f2937' }} {...props} />
+    ),
+    em: ({ node, ...props }: MarkdownComponentProps) => (
+      <em style={{ color: '#6b7280', fontStyle: 'italic' }} {...props} />
+    )
+  };
 
   return (
     <Box sx={{ 
@@ -80,459 +197,9 @@ const PrivacyPolicy: React.FC = () => {
           }}
         >
           <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 4 } }}>
-            {/* Introduction */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.
-              </Typography>
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' }
-                }}
-              >
-                We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.
-              </Typography>
-            </Box>
-
-            {/* Interpretation and Definitions */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Interpretation and Definitions
-              </Typography>
-              
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                <strong>Interpretation</strong><br />
-                The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' }
-                }}
-              >
-                <strong>Definitions</strong><br />
-                For the purposes of this Privacy Policy:
-              </Typography>
-
-              <Box component="ul" sx={{ pl: 2, color: '#374151', fontSize: { xs: '0.875rem', sm: '0.95rem' } }}>
-                <li><strong>Account</strong> means a unique account created for You to access our Service or parts of our Service.</li>
-                <li><strong>Affiliate</strong> means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.</li>
-                <li><strong>Application</strong> refers to Code 3 Scribe, the software program provided by the Company.</li>
-                <li><strong>Company</strong> (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to Code 3 Scribe LLC, 2021 GUADALUPE ST SUITE 260 AUSTIN, TX 78705.</li>
-                <li><strong>Personal Data</strong> is any information that relates to an identified or identifiable individual.</li>
-                <li><strong>Service</strong> refers to the Application.</li>
-                <li><strong>You</strong> means the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.</li>
-              </Box>
-            </Box>
-
-            {/* Collecting and Using Your Personal Data */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Collecting and Using Your Personal Data
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                <strong>Types of Data Collected</strong>
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                <strong>Personal Data</strong><br />
-                While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You. Personally identifiable information may include, but is not limited to:
-              </Typography>
-
-              <Box component="ul" sx={{ pl: 2, color: '#374151', fontSize: { xs: '0.875rem', sm: '0.95rem' }, mb: 2 }}>
-                <li>Email address</li>
-                <li>First name and last name</li>
-                <li>Phone number</li>
-                <li>Usage Data</li>
-              </Box>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' }
-                }}
-              >
-                <strong>Usage Data</strong><br />
-                Usage Data is collected automatically when using the Service and may include information such as Your Device's Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that You visit, the time and date of Your visit, the time spent on those pages, unique device identifiers and other diagnostic data.
-              </Typography>
-            </Box>
-
-            {/* Use of Your Personal Data */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Use of Your Personal Data
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                The Company may use Personal Data for the following purposes:
-              </Typography>
-
-              <Box component="ul" sx={{ pl: 2, color: '#374151', fontSize: { xs: '0.875rem', sm: '0.95rem' }, mb: 2 }}>
-                <li>To provide and maintain our Service, including to monitor the usage of our Service.</li>
-                <li>To manage Your Account: to manage Your registration as a user of the Service.</li>
-                <li>For the performance of a contract: the development, compliance and undertaking of the purchase contract for the products, items or services You have purchased.</li>
-                <li>To contact You: To contact You by email, telephone calls, SMS, or other equivalent forms of electronic communication.</li>
-                <li>To provide You with news, special offers and general information about other goods, services and events which we offer.</li>
-                <li>To manage Your requests: To attend and manage Your requests to Us.</li>
-              </Box>
-            </Box>
-
-            {/* Retention and Security */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Retention and Security of Your Personal Data
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                The Company will retain Your Personal Data only for as long as is necessary for the purposes set out in this Privacy Policy. We will retain and use Your Personal Data to the extent necessary to comply with our legal obligations, resolve disputes, and enforce our legal agreements and policies.
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' }
-                }}
-              >
-                The security of Your Personal Data is important to Us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While We strive to use commercially acceptable means to protect Your Personal Data, We cannot guarantee its absolute security.
-              </Typography>
-            </Box>
-
-            {/* GDPR Privacy */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Your GDPR Rights
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                If You are within the EU, You have the right to:
-              </Typography>
-
-              <Box component="ul" sx={{ pl: 2, color: '#374151', fontSize: { xs: '0.875rem', sm: '0.95rem' }, mb: 2 }}>
-                <li>Request access to Your Personal Data</li>
-                <li>Request correction of Your Personal Data</li>
-                <li>Object to processing of Your Personal Data</li>
-                <li>Request erasure of Your Personal Data</li>
-                <li>Request the transfer of Your Personal Data</li>
-                <li>Withdraw Your consent</li>
-              </Box>
-            </Box>
-
-            {/* CCPA/CPRA Rights */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Your CCPA/CPRA Rights (California)
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                The CCPA/CPRA provides California residents with specific rights regarding their personal information:
-              </Typography>
-
-              <Box component="ul" sx={{ pl: 2, color: '#374151', fontSize: { xs: '0.875rem', sm: '0.95rem' }, mb: 2 }}>
-                <li>The right to notice about what personal information is collected</li>
-                <li>The right to know/access your personal information</li>
-                <li>The right to say no to the sale of Personal Data</li>
-                <li>The right to correct Personal Data</li>
-                <li>The right to delete Personal Data</li>
-                <li>The right not to be discriminated against for exercising your rights</li>
-              </Box>
-            </Box>
-
-            {/* Children's Privacy */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Children's Privacy
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' }
-                }}
-              >
-                Our Service does not address anyone under the age of 13. We do not knowingly collect personally identifiable information from anyone under the age of 13. If You are a parent or guardian and You are aware that Your child has provided Us with Personal Data, please contact Us.
-              </Typography>
-            </Box>
-
-            {/* HIPAA Notice */}
-            <Box sx={{ mb: { xs: 3, md: 4 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                HIPAA Notice of Privacy Practices
-              </Typography>
-
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: '#666',
-                  fontStyle: 'italic',
-                  fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                  mb: 2
-                }}
-              >
-                Last Updated: August 11, 2025
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                This Notice of Privacy Practices describes how Code 3 Scribe LLC processes and safeguards any Protected Health Information (PHI) entered into the Code 3 Scribe application, and explains your rights under HIPAA.
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                <strong>PHI Handling:</strong> When a provider records their voice, our voice-to-text transcription system applies automatic PHI-stripping technology in real time. This removes personal identifiers before the transcript is finalized. No raw PHI is stored in our system.
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' }
-                }}
-              >
-                <strong>Security:</strong> We implement HIPAA-compliant safeguards including encryption in transit, access controls, and vendor compliance. Any PHI detected during voice capture is immediately discarded and cannot be recovered.
-              </Typography>
-            </Box>
-
-            {/* Contact Information */}
-            <Box>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                sx={{ 
-                  fontWeight: 700, 
-                  color: 'rgba(54, 128, 218, 1)',
-                  mb: { xs: 2, md: 3 },
-                  fontSize: { 
-                    xs: '1.25rem', 
-                    sm: '1.375rem', 
-                    md: '1.5rem' 
-                  }
-                }}
-              >
-                Contact Us
-              </Typography>
-
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: '#374151', 
-                  lineHeight: 1.7, 
-                  fontSize: { xs: '0.875rem', sm: '0.95rem' },
-                  textAlign: { xs: 'left', sm: 'justify' },
-                  mb: 2
-                }}
-              >
-                If you have any questions about this Privacy Policy, You can contact us:
-              </Typography>
-
-              <Box component="ul" sx={{ pl: 2, color: '#374151', fontSize: { xs: '0.875rem', sm: '0.95rem' } }}>
-                <li>By email: team@code3scribe.ai</li>
-                <li>HIPAA Privacy Officer: juan.montes@code3scribe.ai</li>
-                <li>Mail: Code 3 Scribe LLC, 2021 Guadalupe St, Suite 260, Austin, TX 78705</li>
-              </Box>
-            </Box>
+            <ReactMarkdown components={MarkdownComponents}>
+              {privacyPolicyContent}
+            </ReactMarkdown>
           </CardContent>
         </Card>
       </Box>

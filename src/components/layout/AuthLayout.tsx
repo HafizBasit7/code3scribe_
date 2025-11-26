@@ -21,8 +21,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         width: '100vw', // Use viewport width instead of 100%
         maxWidth: '100vw', // Ensure no overflow
         overflowX: 'hidden', // Prevent horizontal scroll
-        margin: 0,
-        padding: 0,
+        // margin: 0,
+        // padding: 0,
       }}
     >
       {/* Left Side - Images with Logo */}
@@ -97,7 +97,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
           display: 'flex',
           alignItems: { xs: 'flex-start', md: 'center' },
           justifyContent: { xs: 'flex-start', md: 'center' },
-          p: { xs: 3, sm: 4, md: 6 },
+          // p: { xs: , sm: 4, md: 1 },
           backgroundColor: '#fff',
           overflow: 'auto',
           minHeight: { xs: 'calc(100vh - 250px)', md: '100vh' },

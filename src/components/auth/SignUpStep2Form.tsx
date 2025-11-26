@@ -6,7 +6,9 @@ import {
   Button,
   MenuItem,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Fade,
+  Collapse
 } from '@mui/material';
 import type { OnboardingFormData } from '../../types/auth';
 
@@ -15,14 +17,8 @@ interface SignUpStep2FormProps {
   onSubmit: (data: OnboardingFormData) => void;
 }
 
-const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit }) => {
-  const [formData, setFormData] = useState<OnboardingFormData>({
-    softwareName: '',
-    role: '',
-    agencyType: '',
-  });
-
-  const softwareOptions = [
+// Constants for cleaner code organization
+const SOFTWARE_OPTIONS = [
   'ESO Suite',
   'ImageTrend Elite',
   'ZOLL emsCharts',
@@ -55,7 +51,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
   'PeerConnect'
 ];
 
-const roleOptions = [
+const ROLE_OPTIONS = [
   'EMT-B (Basic)',
   'EMT-A (Advanced)',
   'Paramedic (EMT-P)',
@@ -67,10 +63,9 @@ const roleOptions = [
   'Nurse (Flight / MICN / EMS-related)',
   'Dispatcher / Communications Personnel',
   'Student (EMT/Paramedic Program)',
-  'Other (Please Specify)',
 ];
 
-  const agencyTypeOptions = [
+const AGENCY_TYPE_OPTIONS = [
   '911 Emergency Response (Municipal/County)',
   'Fire Department-based EMS',
   'Private Ambulance (911 or IFT)',
@@ -80,23 +75,93 @@ const roleOptions = [
   'Volunteer / Rural EMS',
   'Military or DoD EMS',
   'Training/Education Program',
-  'Other (Please Specify)',
 ];
 
+const OTHER_OPTION = 'Other (Please Specify)';
+
+const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit }) => {
+  const [formData, setFormData] = useState<OnboardingFormData>({
+    softwareName: '',
+    role: '',
+    agencyType: '',
+  });
   
+  const [customValues, setCustomValues] = useState({
+    softwareName: '',
+    role: '',
+    agencyType: '',
+  });
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const handleChange = useCallback((field: keyof OnboardingFormData) => (
+  // Check if "Other" option is selected for each field
+  const showSoftwareInput = formData.softwareName === OTHER_OPTION;
+  const showRoleInput = formData.role === OTHER_OPTION;
+  const showAgencyTypeInput = formData.agencyType === OTHER_OPTION;
+
+  const handleSelectChange = useCallback((field: keyof OnboardingFormData) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setFormData(prev => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+    setFormData(prev => ({ 
+      ...prev, 
+      [field]: value 
+    }));
+
+    // If switching away from "Other", clear the custom value
+    if (value !== OTHER_OPTION) {
+      setCustomValues(prev => ({ ...prev, [field]: '' }));
+    }
+  }, []);
+
+  const handleCustomInputChange = useCallback((field: keyof OnboardingFormData) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setCustomValues(prev => ({ ...prev, [field]: value }));
+    
+    // Update the main form data with custom value
+    if (value.trim()) {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   }, []);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-  }, [formData, onSubmit]);
+    
+    // Prepare final data with custom values where applicable
+    const finalData: OnboardingFormData = {
+      softwareName: showSoftwareInput && customValues.softwareName ? customValues.softwareName : formData.softwareName,
+      role: showRoleInput && customValues.role ? customValues.role : formData.role,
+      agencyType: showAgencyTypeInput && customValues.agencyType ? customValues.agencyType : formData.agencyType,
+    };
+
+    // Validate that custom inputs are filled when "Other" is selected
+    if (showSoftwareInput && !customValues.softwareName.trim()) {
+      return; // You might want to show an error here
+    }
+    if (showRoleInput && !customValues.role.trim()) {
+      return; // You might want to show an error here
+    }
+    if (showAgencyTypeInput && !customValues.agencyType.trim()) {
+      return; // You might want to show an error here
+    }
+
+    onSubmit(finalData);
+  }, [formData, customValues, showSoftwareInput, showRoleInput, showAgencyTypeInput, onSubmit]);
+
+  // Helper function to render select options with "Other" option
+  const renderSelectOptions = (options: string[]) => [
+    ...options.map(option => (
+      <MenuItem key={option} value={option}>
+        {option}
+      </MenuItem>
+    )),
+    <MenuItem key={OTHER_OPTION} value={OTHER_OPTION}>
+      {OTHER_OPTION}
+    </MenuItem>
+  ];
 
   return (
     <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 500 } }}>
@@ -124,7 +189,8 @@ const roleOptions = [
       </Box>
 
       <form onSubmit={handleSubmit}>
-        <Box sx={{ mb: 1 }}>
+        {/* Agency Type Field */}
+        <Box sx={{ mb: 2 }}>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -140,22 +206,44 @@ const roleOptions = [
             select
             fullWidth
             value={formData.agencyType}
-            onChange={handleChange('agencyType')}
+            onChange={handleSelectChange('agencyType')}
             required
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
               },
+              mb: showAgencyTypeInput ? 1 : 0,
             }}
           >
-            {agencyTypeOptions.map(option => (
-              <MenuItem key={option} value={option}>{option}</MenuItem>
-            ))}
+            {renderSelectOptions(AGENCY_TYPE_OPTIONS)}
           </TextField>
+          
+          <Collapse in={showAgencyTypeInput}>
+            <Fade in={showAgencyTypeInput}>
+              <TextField
+                fullWidth
+                placeholder="Please specify your agency type"
+                value={customValues.agencyType}
+                onChange={handleCustomInputChange('agencyType')}
+                required={showAgencyTypeInput}
+                size={isMobile ? "small" : "medium"}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                  mt: 1,
+                }}
+                inputProps={{
+                  maxLength: 100
+                }}
+              />
+            </Fade>
+          </Collapse>
         </Box>
 
-        <Box sx={{ mb: 1 }}>
+        {/* Role Field */}
+        <Box sx={{ mb: 2 }}>
           <Typography 
             variant="body2" 
             sx={{ 
@@ -165,27 +253,49 @@ const roleOptions = [
               fontSize: { xs: '0.875rem', sm: '0.9rem' }
             }}
           >
-            What best describe your role/certification level?
+            What best describes your role/certification level?
           </Typography>
           <TextField
             select
             fullWidth
             value={formData.role}
-            onChange={handleChange('role')}
+            onChange={handleSelectChange('role')}
             required
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
               },
+              mb: showRoleInput ? 1 : 0,
             }}
           >
-            {roleOptions.map(option => (
-              <MenuItem key={option} value={option}>{option}</MenuItem>
-            ))}
+            {renderSelectOptions(ROLE_OPTIONS)}
           </TextField>
+          
+          <Collapse in={showRoleInput}>
+            <Fade in={showRoleInput}>
+              <TextField
+                fullWidth
+                placeholder="Please specify your role"
+                value={customValues.role}
+                onChange={handleCustomInputChange('role')}
+                required={showRoleInput}
+                size={isMobile ? "small" : "medium"}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                  mt: 1,
+                }}
+                inputProps={{
+                  maxLength: 100
+                }}
+              />
+            </Fade>
+          </Collapse>
         </Box>
 
+        {/* Software Name Field */}
         <Box sx={{ mb: { xs: 3, md: 4 } }}>
           <Typography 
             variant="body2" 
@@ -202,19 +312,40 @@ const roleOptions = [
             select
             fullWidth
             value={formData.softwareName}
-            onChange={handleChange('softwareName')}
+            onChange={handleSelectChange('softwareName')}
             required
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
               },
+              mb: showSoftwareInput ? 1 : 0,
             }}
           >
-            {softwareOptions.map(option => (
-              <MenuItem key={option} value={option}>{option}</MenuItem>
-            ))}
+            {renderSelectOptions(SOFTWARE_OPTIONS)}
           </TextField>
+          
+          <Collapse in={showSoftwareInput}>
+            <Fade in={showSoftwareInput}>
+              <TextField
+                fullWidth
+                placeholder="Please specify your EMS software"
+                value={customValues.softwareName}
+                onChange={handleCustomInputChange('softwareName')}
+                required={showSoftwareInput}
+                size={isMobile ? "small" : "medium"}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                  mt: 1,
+                }}
+                inputProps={{
+                  maxLength: 100
+                }}
+              />
+            </Fade>
+          </Collapse>
         </Box>
 
         <Button
@@ -229,7 +360,19 @@ const roleOptions = [
             fontSize: { xs: '14px', sm: '16px' },
             fontWeight: 600,
             mb: 3,
+            '&:disabled': {
+              background: '#e0e0e0',
+              color: '#9e9e9e'
+            }
           }}
+          disabled={
+            (showSoftwareInput && !customValues.softwareName.trim()) ||
+            (showRoleInput && !customValues.role.trim()) ||
+            (showAgencyTypeInput && !customValues.agencyType.trim()) ||
+            !formData.softwareName ||
+            !formData.role ||
+            !formData.agencyType
+          }
         >
           Sign up
         </Button>
