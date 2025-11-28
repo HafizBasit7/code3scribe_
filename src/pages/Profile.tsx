@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -8,23 +8,50 @@ import {
   TextField,
   useTheme,
   useMediaQuery,
-  
+  Snackbar,
+  Alert,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from '@mui/material';
 import { Grid as MuiGrid } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import prof from '../assets/icons/prof.jpg';
+import { logoutUser } from '../services/authApi';
+import { logout } from '../store/slices/authSlice';
+import { 
+  selectUserId, 
+  selectIsAuthenticated, 
+  selectAuth,
+  selectUserName
+} from '../store/selectors/authSelectors';
+import { getUserProfile, updateUserProfile, deleteUserAccount } from '../services/profileApi'; // ADD deleteUserAccount
+import { setProfile, setProfileLoading, setProfileError, updateProfile } from '../store/slices/profileSlice';
+import { selectUserProfile, selectProfileLoading } from '../store/selectors/profileSelectors';
 
 type ProfileMode = 'view' | 'edit' | 'changePassword';
 
 const Profile: React.FC = () => {
-    const Grid = MuiGrid as React.ComponentType<any>;
+  const Grid = MuiGrid as React.ComponentType<any>;
   const [mode, setMode] = useState<ProfileMode>('view');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // NEW: Delete confirmation modal state
+  const [deleteLoading, setDeleteLoading] = useState(false); // NEW: Delete loading state
+  
   const [formData, setFormData] = useState({
-    firstName: 'Sergio',
-    lastName: 'Perez',
-    contactNumber: '(483) 500-1865',
-    email: 'sergioperez@c3s.com'
+    userName: '',
+    email: '',
+    phoneNumber: '',
+    role: '',
+    agencyType: '',
   });
+  
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
     newPassword: '',
@@ -35,16 +62,97 @@ const Profile: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
-  const userData = {
-    firstName: 'Sergio',
-    lastName: 'Perez',
-    contactNumber: '(483) 500-1865',
-    email: 'sergioperez@c3s.com'
-  };
+  // Redux hooks
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userIdFromRedux = useSelector(selectUserId);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const authState = useSelector(selectAuth);
+  const profile = useSelector(selectUserProfile);
+  const profileLoading = useSelector(selectProfileLoading);
+  const userNameFromRedux = useSelector(selectUserName);
+
+  const userId = userIdFromRedux || localStorage.getItem('userId');
+
+  // NEW: Delete User Handler
+  const handleDeleteAccount = useCallback(async () => {
+    if (!userId) {
+      setSnackbar({
+        open: true,
+        message: 'User ID not available',
+        severity: 'error'
+      });
+      return;
+    }
+
+    try {
+      setDeleteLoading(true);
+      
+      // Call delete API
+      await deleteUserAccount(userId);
+      
+      // Logout user after successful deletion
+      dispatch(logout());
+      
+      setSnackbar({
+        open: true,
+        message: 'Account deleted successfully',
+        severity: 'success'
+      });
+      
+      // Navigate to login page
+      navigate('/login');
+      
+    } catch (error: any) {
+      console.error('Delete account failed:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Failed to delete account',
+        severity: 'error'
+      });
+    } finally {
+      setDeleteLoading(false);
+      setDeleteDialogOpen(false);
+    }
+  }, [userId, dispatch, navigate]);
+
+  // NEW: Open delete confirmation dialog
+  const handleOpenDeleteDialog = useCallback(() => {
+    setDeleteDialogOpen(true);
+  }, []);
+
+  // NEW: Close delete confirmation dialog
+  const handleCloseDeleteDialog = useCallback(() => {
+    setDeleteDialogOpen(false);
+  }, []);
+
+  // Rest of your existing handlers remain the same...
+  // const handleLogout = useCallback(async () => {
+  //   try {
+  //     dispatch(setProfileLoading(true));
+      
+  //     const logoutData = {
+  //       userid: userId || '',
+  //       deviceType: 1,
+  //       userDeviceToken: '',
+  //       refreshToken: localStorage.getItem('refreshToken') || ''
+  //     };
+
+  //     await logoutUser(logoutData);
+  //     dispatch(logout());
+  //     navigate('/login');
+      
+  //   } catch (error) {
+  //     console.error('Logout failed:', error);
+  //     dispatch(logout());
+  //     navigate('/login');
+  //   } finally {
+  //     dispatch(setProfileLoading(false));
+  //   }
+  // }, [dispatch, navigate, userId]);
 
   const handleEditClick = useCallback(() => {
     setMode('edit');
-    // Scroll to top when entering edit mode on mobile
     if (isMobile) {
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -54,7 +162,6 @@ const Profile: React.FC = () => {
 
   const handleChangePasswordClick = useCallback(() => {
     setMode('changePassword');
-    // Scroll to top when entering change password mode on mobile
     if (isMobile) {
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -64,22 +171,54 @@ const Profile: React.FC = () => {
 
   const handleCancel = useCallback(() => {
     setMode('view');
-    setFormData({
-      firstName: 'Sergio',
-      lastName: 'Perez',
-      contactNumber: '(483) 500-1865',
-      email: 'sergioperez@c3s.com'
-    });
+    if (profile) {
+      setFormData({
+        userName: userNameFromRedux || profile.userName || '', // Use Redux name
+        email: profile.email || '',
+        phoneNumber: profile.phoneNumber || '',
+        role: profile.role || '',
+        agencyType: profile.agencyType || '',
+      });
+    }
     setPasswordData({
       oldPassword: '',
       newPassword: '',
       confirmPassword: ''
     });
-  }, []);
+  }, [profile, userNameFromRedux]);
 
-  const handleSave = useCallback(() => {
-    setMode('view');
-  }, []);
+  const handleSave = useCallback(async () => {
+    if (!userId) {
+      setSnackbar({
+        open: true,
+        message: 'User ID not available',
+        severity: 'error'
+      });
+      return;
+    }
+
+    try {
+      dispatch(setProfileLoading(true));
+      const updatedProfile = await updateUserProfile(userId, formData);
+      dispatch(updateProfile(updatedProfile));
+      
+      setMode('view');
+      setSnackbar({
+        open: true,
+        message: 'Profile updated successfully',
+        severity: 'success'
+      });
+    } catch (error: any) {
+      dispatch(setProfileError(error.response?.data?.message || 'Failed to update profile'));
+      setSnackbar({
+        open: true,
+        message: 'Failed to update profile',
+        severity: 'error'
+      });
+    } finally {
+      dispatch(setProfileLoading(false));
+    }
+  }, [userId, formData, dispatch]);
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({
@@ -95,23 +234,97 @@ const Profile: React.FC = () => {
     }));
   }, []);
 
+  const handleCloseSnackbar = useCallback(() => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  }, []);
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    console.log('useEffect triggered - userId:', userId);
+    
+    const fetchProfile = async () => {
+      if (userId && userId !== 'null' && userId !== 'undefined' && userId.length > 10) {
+        try {
+          console.log('Starting to fetch profile for userId:', userId);
+          dispatch(setProfileLoading(true));
+          
+          const profileData = await getUserProfile(userId);
+          console.log('Profile data received:', profileData);
+          
+          dispatch(setProfile(profileData));
+          
+          // Initialize form data with profile data + user name from Redux
+          setFormData({
+            userName: userNameFromRedux || profileData.userName || '', // Use Redux name first
+            email: profileData.email || '',
+            phoneNumber: profileData.phoneNumber || '',
+            role: profileData.role || '',
+            agencyType: profileData.agencyType || '',
+          });
+        } catch (error: any) {
+          console.error('Error fetching profile:', error);
+          const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch profile';
+          dispatch(setProfileError(errorMessage));
+          setSnackbar({
+            open: true,
+            message: errorMessage,
+            severity: 'error'
+          });
+        } finally {
+          dispatch(setProfileLoading(false));
+        }
+      } else {
+        console.log('No valid userId available, skipping profile fetch');
+        console.log('Available localStorage userId:', localStorage.getItem('userId'));
+        console.log('Auth state user:', authState.user);
+      }
+    };
+
+    fetchProfile();
+  }, [userId, dispatch, authState.user, userNameFromRedux]);
+
+  // Updated renderProfileContent function with Delete Button
   const renderProfileContent = useCallback(() => {
+    console.log('renderProfileContent - profileLoading:', profileLoading, 'profile:', profile);
+    
+    if (profileLoading) {
+      return (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+          <CircularProgress size={40} />
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            Loading profile data...
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (!profile) {
+      return (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', minHeight: 200 }}>
+          <Typography variant="h6" color="textSecondary" gutterBottom>
+            No profile data available
+          </Typography>
+          <Typography variant="body2" color="textSecondary" gutterBottom>
+            User ID: {userId || 'Not available'}
+          </Typography>
+          <Typography variant="body2" color="textSecondary" gutterBottom>
+            Please make sure you are logged in correctly.
+          </Typography>
+          <Button 
+            variant="outlined" 
+            onClick={() => window.location.reload()}
+            sx={{ mt: 2 }}
+          >
+            Retry Loading
+          </Button>
+        </Box>
+      );
+    }
+
     switch (mode) {
       case 'edit':
         return (
           <Box sx={{ flex: 1, minHeight: isMobile ? 'auto' : '400px' }}>
-            {/* <Typography 
-              variant={isMobile ? "h6" : "h5"} 
-              sx={{ 
-                fontWeight: 600, 
-                color: 'rgba(14, 97, 192, 1)',
-                mb: 3,
-                fontSize: { xs: '1.25rem', sm: '1.5rem' }
-              }}
-            >
-              Edit Personal Information
-            </Typography> */}
-
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Box sx={{ mb: 1 }}>
@@ -123,41 +336,12 @@ const Profile: React.FC = () => {
                       mb: 1
                     }}
                   >
-                    First Name:
+                    User Name:
                   </Typography>
                   <TextField
                     fullWidth
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    variant="outlined"
-                    size={isMobile ? "small" : "medium"}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': {
-                          borderColor: 'rgba(14, 97, 192, 1)',
-                        },
-                      }
-                    }}
-                  />
-                </Box>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ mb: 1 }}>
-                  <Typography 
-                    variant="subtitle2" 
-                    sx={{ 
-                      fontWeight: 600, 
-                      color: '#374151',
-                      mb: 1
-                    }}
-                  >
-                    Last Name:
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    value={formData.userName}
+                    onChange={(e) => handleInputChange('userName', e.target.value)}
                     variant="outlined"
                     size={isMobile ? "small" : "medium"}
                     sx={{
@@ -181,12 +365,12 @@ const Profile: React.FC = () => {
                       mb: 1
                     }}
                   >
-                    Contact Number:
+                    Phone Number:
                   </Typography>
                   <TextField
                     fullWidth
-                    value={formData.contactNumber}
-                    onChange={(e) => handleInputChange('contactNumber', e.target.value)}
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                     variant="outlined"
                     size={isMobile ? "small" : "medium"}
                     sx={{
@@ -336,106 +520,96 @@ const Profile: React.FC = () => {
       default:
         return (
           <Box sx={{ flex: 1 }}>
+            {/* Email on top with Delete Button */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.3 }}>
+              <Typography 
+                variant="body1"
+                sx={{ 
+                  fontWeight: 600, 
+                  color: 'rgba(54, 128, 218, 1)',
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                }}
+              >
+                {profile.email}
+              </Typography>
+              
+              {/* Delete Account Button */}
+              <IconButton
+                onClick={handleOpenDeleteDialog}
+                sx={{
+                  color: '#d32f2f',
+                  '&:hover': {
+                    backgroundColor: 'rgba(211, 47, 47, 0.04)',
+                  }
+                }}
+                title="Delete Account"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+
+            {/* Full Name under email */}
             <Typography 
               variant={isMobile ? "h6" : "h5"} 
               sx={{ 
                 fontWeight: 600, 
-                color: 'rgba(14, 97, 192, 1)',
-                mb: 1,
-                fontSize: { xs: '1.25rem', sm: '1.5rem' }
-              }}
-            >
-              Sergio Perez
-            </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: '#64748b',
-                fontSize: { xs: '0.875rem', sm: '0.9rem' },
+                color: '#000',
                 mb: 3,
+                fontSize: { xs: '0.95rem', sm: '1rem' }
               }}
             >
-              sergioperez@c3s.com
+              {userNameFromRedux || profile.userName} {/* Use Redux name */}
             </Typography>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
-                  <Typography 
-                    sx={{ 
-                      fontWeight: 600, 
-                      color: '#374151',
-                      mb: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
-                    }}
-                  >
-                    First Name:
-                  </Typography>
-                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
-                    {userData.firstName || '-'}
-                  </Typography>
-                </Box>
-              </Grid>
+            {/* Profile fields */}
+            {[
+              { label: "User Name", value: userNameFromRedux || profile.userName }, // Use Redux name
+              { label: "Phone Number", value: profile.phoneNumber },
+              { label: "Email Address", value: profile.email },
+            ].map((item, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  py: 1.2,
+                  borderBottom: "1px solid #e5e7eb"
+                }}
+              >
+                <Typography 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: "#374151",
+                    fontSize: { xs: "0.875rem", sm: "0.9rem" },
+                    width: "40%",
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  {item.label}:
+                </Typography>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
-                  <Typography 
-                    sx={{ 
-                      fontWeight: 600, 
-                      color: '#374151',
-                      mb: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
-                    }}
-                  >
-                    Last Name:
-                  </Typography>
-                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
-                    {userData.lastName || '-'}
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
-                  <Typography 
-                    sx={{ 
-                      fontWeight: 600, 
-                      color: '#374151',
-                      mb: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
-                    }}
-                  >
-                    Contact Number:
-                  </Typography>
-                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
-                    {userData.contactNumber || '-'}
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ mb: { xs: 2, sm: 1.5 } }}>
-                  <Typography 
-                    sx={{ 
-                      fontWeight: 600, 
-                      color: '#374151',
-                      mb: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '0.9rem' }
-                    }}
-                  >
-                    Email Address:
-                  </Typography>
-                  <Typography sx={{ color: '#111827', fontSize: { xs: '0.875rem', sm: '0.9rem' } }}>
-                    {userData.email || '-'}
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
+                <Typography 
+                  sx={{ 
+                    color: "#111827",
+                    fontSize: { xs: "0.875rem", sm: "0.9rem" },
+                    width: "55%",
+                    textAlign: "right",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  {item.value || "N/A"}
+                </Typography>
+              </Box>
+            ))}
           </Box>
         );
     }
-  }, [mode, formData, passwordData, userData, handleInputChange, handlePasswordChange, isMobile]);
+  }, [mode, formData, passwordData, profile, profileLoading, handleInputChange, handlePasswordChange, isMobile, userNameFromRedux, handleOpenDeleteDialog]);
 
+  // Rest of your existing renderActionButtons function remains the same...
   const renderActionButtons = useCallback(() => {
     if (mode === 'view') {
       return (
@@ -484,6 +658,26 @@ const Profile: React.FC = () => {
           >
             Edit profile
           </Button>
+          {/* <Button
+            variant="outlined"
+            onClick={handleLogout}
+            sx={{
+              borderColor: '#d32f2f',
+              color: '#d32f2f',
+              borderRadius: 2,
+              fontWeight: 600,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              fontSize: { xs: '0.875rem', sm: '0.9rem' },
+              minWidth: { xs: '140px', sm: 'auto' },
+              '&:hover': {
+                borderColor: '#b71c1c',
+                backgroundColor: 'rgba(211, 47, 47, 0.04)',
+              }
+            }}
+          >
+            Logout
+          </Button> */}
         </Box>
       );
     } else {
@@ -505,6 +699,7 @@ const Profile: React.FC = () => {
             variant="outlined"
             startIcon={<ArrowBackIcon />}
             onClick={handleCancel}
+            disabled={profileLoading}
             sx={{
               borderColor: '#64748b',
               color: '#64748b',
@@ -522,9 +717,10 @@ const Profile: React.FC = () => {
           >
             Cancel
           </Button>
-          <Button
+          {/* <Button
             variant="contained"
             onClick={handleSave}
+            disabled={profileLoading}
             sx={{
               background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
               color: 'white',
@@ -539,12 +735,12 @@ const Profile: React.FC = () => {
               }
             }}
           >
-            Save
-          </Button>
+            {profileLoading ? 'Saving...' : 'Save'}
+          </Button> */}
         </Box>
       );
     }
-  }, [mode, handleChangePasswordClick, handleEditClick, handleCancel, handleSave, isMobile]);
+  }, [mode, handleChangePasswordClick, handleEditClick, handleCancel, handleSave, profileLoading, isMobile]);
 
   const imageSize = isMobile ? 200 : isTablet ? 250 : 280;
 
@@ -558,10 +754,8 @@ const Profile: React.FC = () => {
       width: '100%',
       minWidth: 0,
       overflow: 'auto',
-      // Ensure the page is scrollable on mobile in edit modes
       minHeight: isMobile && (mode === 'edit' || mode === 'changePassword') ? '100vh' : 'auto'
     }}>
-      {/* Profile Card - Responsive Layout */}
       <Card 
         sx={{ 
           borderRadius: { xs: 1.5, md: 2 },
@@ -571,7 +765,6 @@ const Profile: React.FC = () => {
           maxWidth: 900,
           mx: 'auto',
           width: '100%',
-          // Ensure card doesn't get cut off on mobile
           mb: isMobile && (mode === 'edit' || mode === 'changePassword') ? 8 : 0
         }}
       >
@@ -622,7 +815,6 @@ const Profile: React.FC = () => {
               display: 'flex', 
               flexDirection: 'column',
               width: '100%',
-              // Ensure content area is properly sized for scrolling
               minHeight: isMobile && (mode === 'edit' || mode === 'changePassword') ? '400px' : 'auto'
             }}>
               {renderProfileContent()}
@@ -631,6 +823,57 @@ const Profile: React.FC = () => {
           </Box>
         </CardContent>
       </Card>
+
+      {/* NEW: Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title" sx={{ color: '#d32f2f', fontWeight: 600 }}>
+          Delete Account
+        </DialogTitle>
+        <DialogContent>
+          <Typography id="delete-dialog-description" sx={{ mt: 1 }}>
+            Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={handleCloseDeleteDialog} 
+            disabled={deleteLoading}
+            sx={{ color: '#64748b' }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteAccount} 
+            disabled={deleteLoading}
+            variant="contained"
+            sx={{
+              backgroundColor: '#d32f2f',
+              '&:hover': {
+                backgroundColor: '#b71c1c',
+              }
+            }}
+          >
+            {deleteLoading ? 'Deleting...' : 'Delete Account'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -8,13 +8,16 @@ import {
   useTheme,
   useMediaQuery,
   Fade,
-  Collapse
+  Collapse,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import type { OnboardingFormData } from '../../types/auth';
 
 interface SignUpStep2FormProps {
   onNavigate: (screen: string) => void;
   onSubmit: (data: OnboardingFormData) => void;
+  loading?: boolean;
 }
 
 // Constants for cleaner code organization
@@ -79,7 +82,7 @@ const AGENCY_TYPE_OPTIONS = [
 
 const OTHER_OPTION = 'Other (Please Specify)';
 
-const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit }) => {
+const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit, loading = false }) => {
   const [formData, setFormData] = useState<OnboardingFormData>({
     softwareName: '',
     role: '',
@@ -92,6 +95,8 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
     agencyType: '',
   });
 
+  const [errors, setErrors] = useState<Partial<OnboardingFormData>>({});
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -99,6 +104,34 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
   const showSoftwareInput = formData.softwareName === OTHER_OPTION;
   const showRoleInput = formData.role === OTHER_OPTION;
   const showAgencyTypeInput = formData.agencyType === OTHER_OPTION;
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<OnboardingFormData> = {};
+
+    // Agency Type validation
+    if (!formData.agencyType.trim()) {
+      newErrors.agencyType = 'Agency type is required';
+    } else if (showAgencyTypeInput && !customValues.agencyType.trim()) {
+      newErrors.agencyType = 'Please specify your agency type';
+    }
+
+    // Role validation
+    if (!formData.role.trim()) {
+      newErrors.role = 'Role is required';
+    } else if (showRoleInput && !customValues.role.trim()) {
+      newErrors.role = 'Please specify your role';
+    }
+
+    // Software Name validation
+    if (!formData.softwareName.trim()) {
+      newErrors.softwareName = 'Software name is required';
+    } else if (showSoftwareInput && !customValues.softwareName.trim()) {
+      newErrors.softwareName = 'Please specify your EMS software';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSelectChange = useCallback((field: keyof OnboardingFormData) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -109,11 +142,16 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
       [field]: value 
     }));
 
+    // Clear error when user selects an option
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+
     // If switching away from "Other", clear the custom value
     if (value !== OTHER_OPTION) {
       setCustomValues(prev => ({ ...prev, [field]: '' }));
     }
-  }, []);
+  }, [errors]);
 
   const handleCustomInputChange = useCallback((field: keyof OnboardingFormData) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -124,35 +162,34 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
     // Update the main form data with custom value
     if (value.trim()) {
       setFormData(prev => ({ ...prev, [field]: value }));
+      
+      // Clear error when user starts typing in custom field
+      if (errors[field]) {
+        setErrors(prev => ({ ...prev, [field]: undefined }));
+      }
     }
-  }, []);
+  }, [errors]);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
-    // Prepare final data with custom values where applicable
-    const finalData: OnboardingFormData = {
-      softwareName: showSoftwareInput && customValues.softwareName ? customValues.softwareName : formData.softwareName,
-      role: showRoleInput && customValues.role ? customValues.role : formData.role,
-      agencyType: showAgencyTypeInput && customValues.agencyType ? customValues.agencyType : formData.agencyType,
-    };
+    if (validateForm()) {
+      // Prepare final data with custom values where applicable
+      const finalData: OnboardingFormData = {
+        softwareName: showSoftwareInput && customValues.softwareName ? customValues.softwareName : formData.softwareName,
+        role: showRoleInput && customValues.role ? customValues.role : formData.role,
+        agencyType: showAgencyTypeInput && customValues.agencyType ? customValues.agencyType : formData.agencyType,
+      };
 
-    // Validate that custom inputs are filled when "Other" is selected
-    if (showSoftwareInput && !customValues.softwareName.trim()) {
-      return; // You might want to show an error here
+      onSubmit(finalData);
     }
-    if (showRoleInput && !customValues.role.trim()) {
-      return; // You might want to show an error here
-    }
-    if (showAgencyTypeInput && !customValues.agencyType.trim()) {
-      return; // You might want to show an error here
-    }
-
-    onSubmit(finalData);
-  }, [formData, customValues, showSoftwareInput, showRoleInput, showAgencyTypeInput, onSubmit]);
+  }, [formData, customValues, showSoftwareInput, showRoleInput, showAgencyTypeInput, onSubmit, validateForm]);
 
   // Helper function to render select options with "Other" option
   const renderSelectOptions = (options: string[]) => [
+    <MenuItem key="" value="">
+      <em>Select an option</em>
+    </MenuItem>,
     ...options.map(option => (
       <MenuItem key={option} value={option}>
         {option}
@@ -162,6 +199,16 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
       {OTHER_OPTION}
     </MenuItem>
   ];
+
+  const isFormValid = () => {
+    const baseValid = formData.softwareName && formData.role && formData.agencyType;
+    const customValid = 
+      (!showSoftwareInput || customValues.softwareName.trim()) &&
+      (!showRoleInput || customValues.role.trim()) &&
+      (!showAgencyTypeInput || customValues.agencyType.trim());
+    
+    return baseValid && customValid;
+  };
 
   return (
     <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 500 } }}>
@@ -184,7 +231,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
             fontSize: { xs: '0.9rem', sm: '0.9rem' }
           }}
         >
-          Wrap up the signup to start using your account.
+          Complete your profile to start using your account
         </Typography>
       </Box>
 
@@ -200,14 +247,17 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
               fontSize: { xs: '0.875rem', sm: '0.9rem' }
             }}
           >
-            What type of agency do you work for?
+            What type of agency do you work for? *
           </Typography>
           <TextField
             select
             fullWidth
             value={formData.agencyType}
             onChange={handleSelectChange('agencyType')}
+            error={!!errors.agencyType}
+            helperText={errors.agencyType}
             required
+            disabled={loading}
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -227,6 +277,9 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
                 value={customValues.agencyType}
                 onChange={handleCustomInputChange('agencyType')}
                 required={showAgencyTypeInput}
+                disabled={loading}
+                error={!!errors.agencyType && showAgencyTypeInput}
+                helperText={showAgencyTypeInput ? errors.agencyType : ''}
                 size={isMobile ? "small" : "medium"}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -253,14 +306,17 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
               fontSize: { xs: '0.875rem', sm: '0.9rem' }
             }}
           >
-            What best describes your role/certification level?
+            What best describes your role/certification level? *
           </Typography>
           <TextField
             select
             fullWidth
             value={formData.role}
             onChange={handleSelectChange('role')}
+            error={!!errors.role}
+            helperText={errors.role}
             required
+            disabled={loading}
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -280,6 +336,9 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
                 value={customValues.role}
                 onChange={handleCustomInputChange('role')}
                 required={showRoleInput}
+                disabled={loading}
+                error={!!errors.role && showRoleInput}
+                helperText={showRoleInput ? errors.role : ''}
                 size={isMobile ? "small" : "medium"}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -306,14 +365,17 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
               fontSize: { xs: '0.875rem', sm: '0.9rem' }
             }}
           >
-            Which EMS Software in use?
+            Which EMS Software in use? *
           </Typography>
           <TextField
             select
             fullWidth
             value={formData.softwareName}
             onChange={handleSelectChange('softwareName')}
+            error={!!errors.softwareName}
+            helperText={errors.softwareName}
             required
+            disabled={loading}
             size={isMobile ? "small" : "medium"}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -333,6 +395,9 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
                 value={customValues.softwareName}
                 onChange={handleCustomInputChange('softwareName')}
                 required={showSoftwareInput}
+                disabled={loading}
+                error={!!errors.softwareName && showSoftwareInput}
+                helperText={showSoftwareInput ? errors.softwareName : ''}
                 size={isMobile ? "small" : "medium"}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -352,6 +417,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
           fullWidth
           type="submit"
           variant="contained"
+          disabled={loading || !isFormValid()}
           size={isMobile ? "medium" : "large"}
           sx={{
             py: { xs: 1.5, sm: 2 },
@@ -365,16 +431,15 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
               color: '#9e9e9e'
             }
           }}
-          disabled={
-            (showSoftwareInput && !customValues.softwareName.trim()) ||
-            (showRoleInput && !customValues.role.trim()) ||
-            (showAgencyTypeInput && !customValues.agencyType.trim()) ||
-            !formData.softwareName ||
-            !formData.role ||
-            !formData.agencyType
-          }
         >
-          Sign up
+          {loading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={20} color="inherit" />
+              Sending OTP...
+            </Box>
+          ) : (
+            'Send Verification Code'
+          )}
         </Button>
 
         <Box sx={{ textAlign: 'center' }}>
@@ -389,6 +454,7 @@ const SignUpStep2Form: React.FC<SignUpStep2FormProps> = ({ onNavigate, onSubmit 
             <Button
               variant="text"
               onClick={() => onNavigate('login')}
+              disabled={loading}
               sx={{ 
                 color: '#2196F3', 
                 fontWeight: 600,

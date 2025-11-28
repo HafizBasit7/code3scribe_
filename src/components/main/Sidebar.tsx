@@ -23,6 +23,7 @@ import {
   Menu,
   Close
 } from '@mui/icons-material';
+import { useSelector, useDispatch } from 'react-redux';
 import logo from '../../../public/assets/images/logo.png';
 import HomeIcon from '../../assets/icons/hom.png';
 import ProtocolIcon from '../../assets/icons/hub.png';
@@ -35,20 +36,45 @@ import DeleteIcon from '../../assets/icons/delete.png';
 import prof from '../../assets/icons/prof.jpg';
 import type { MenuItem } from '../../types/navigation';
 import { ROUTES } from '../../config/routes';
+import { 
+  selectUser, 
+  selectUserEmail, 
+  selectUserName,
+  selectUserId,
+  selectRefreshToken
+} from '../../store/selectors/authSelectors';
+import { logout } from '../../store/slices/authSlice';
+import { logoutUser } from '../../services/authApi';
 
 interface SidebarProps {
-  onLogout: () => void;
+  onLogout?: () => void; // Make optional since we're handling it internally now
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+
+  // Get user data from Auth slice (Redux store)
+  const user = useSelector(selectUser);
+  const userName = useSelector(selectUserName);
+  const userEmail = useSelector(selectUserEmail);
+  const userId = useSelector(selectUserId);
+  const refreshToken = useSelector(selectRefreshToken);
+
+  console.log('Sidebar User Data from Redux:', {
+    user,
+    userName,
+    userEmail,
+    userId
+  });
 
   const menuItems: MenuItem[] = [
     { id: 'home', label: 'Home', path: ROUTES.HOME, icon: HomeIcon },
@@ -80,6 +106,60 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     { id: 'delete-account', label: 'Delete Account', path: ROUTES.DELETE_ACCOUNT, icon: DeleteIcon }
   ];
 
+  // Professional logout handler with API call
+const handleLogout = useCallback(async () => {
+  if (isLoggingOut) return;
+  
+  try {
+    setIsLoggingOut(true);
+    
+    // Get refreshToken directly from localStorage since it might not be in Redux
+    const refreshTokenFromStorage = localStorage.getItem('refreshToken');
+    
+    // Call logout API if we have the required data
+    if (userId && refreshTokenFromStorage) {
+      try {
+        await logoutUser({
+          userid: userId,
+          deviceType: 1,
+          userDeviceToken: '',
+          refreshToken: refreshTokenFromStorage, // Use from storage
+        });
+        console.log('Logout API call successful');
+      } catch (apiError) {
+        console.warn('Logout API call failed, but continuing with client-side logout:', apiError);
+        // Continue with client-side logout even if API fails
+      }
+    } else {
+      console.warn('Missing userId or refreshToken for API logout, continuing with client-side logout');
+    }
+
+    // Dispatch logout action to clear Redux state
+    dispatch(logout());
+
+    // Clear any additional localStorage items
+    localStorage.removeItem('userData');
+    localStorage.removeItem('loginTimestamp');
+
+    // Navigate to login page
+    navigate('/login');
+
+    // Call parent logout handler if provided
+    if (onLogout) {
+      onLogout();
+    }
+
+    console.log('Logout completed successfully');
+
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Even if there's an error, clear client-side state
+    dispatch(logout());
+    navigate('/login');
+  } finally {
+    setIsLoggingOut(false);
+  }
+}, [dispatch, navigate, userId, onLogout, isLoggingOut]);
   const handleMenuClick = useCallback((item: MenuItem) => {
     if (item.children) {
       setOpenMenus(prev => ({
@@ -121,6 +201,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     if (!item.children) return false;
     return item.children.some(child => location.pathname === child.path);
   }, [location.pathname]);
+
+  // Function to get user initials for avatar
+  const getUserInitials = useCallback(() => {
+    if (!userName) return 'U';
+    
+    const names = userName.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase();
+    }
+    return userName[0].toUpperCase();
+  }, [userName]);
 
   const renderMenuItems = useCallback((items: MenuItem[]) => {
     return items.map((item) => {
@@ -303,31 +394,40 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
             sx={{ 
               width: { xs: 36, md: 40 }, 
               height: { xs: 36, md: 40 },
-              border: '2px solid rgba(255,255,255,0.3)'
+              border: '2px solid rgba(255,255,255,0.3)',
+              bgcolor: 'rgba(255,255,255,0.2)',
+              fontSize: { xs: '14px', md: '16px' },
+              fontWeight: 600
             }}
             src={prof}
           >
-            SP
+            {getUserInitials()}
           </Avatar>
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography 
               variant="subtitle1" 
               sx={{ 
                 fontWeight: 600, 
                 fontSize: { xs: '13px', md: '14px' },
-                color: 'white'
+                color: 'white',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
               }}
             >
-              Sergio Perez
+              {userName || 'Loading...'}
             </Typography>
             <Typography 
               variant="body2" 
               sx={{ 
                 fontSize: { xs: '11px', md: '12px' },
-                color: 'rgba(255,255,255,0.8)'
+                color: 'rgba(255,255,255,0.8)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
               }}
             >
-              sergioperez@c38.com
+              {userEmail || 'Loading email...'}
             </Typography>
           </Box>
         </Box>
@@ -335,7 +435,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         {/* Logout Button */}
         <Button
           fullWidth
-          onClick={onLogout}
+          onClick={handleLogout}
+          disabled={isLoggingOut}
           sx={{
             color: 'white',
             borderRadius: 2,
@@ -349,10 +450,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
             '&:hover': {
               background: 'rgba(255,255,255,0.3)',
             },
+            '&:disabled': {
+              color: 'rgba(255,255,255,0.5)',
+            },
           }}
         >
           <Logout sx={{ fontSize: { xs: 14, md: 16 } }} />
-          Logout
+          {isLoggingOut ? 'Logging out...' : 'Logout'}
         </Button>
       </Box>
     </>
@@ -399,7 +503,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           onOpen={handleDrawerToggle}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true,
           }}
           sx={{
             display: { xs: 'block', md: 'none' },

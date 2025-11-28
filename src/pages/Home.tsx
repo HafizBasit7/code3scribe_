@@ -1,14 +1,15 @@
-import React from 'react';
+// pages/Home.tsx
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   Button,
   Card,
   CardContent,
-  Chip,
   useTheme,
   useMediaQuery,
-
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import mic from '../assets/icons/mic.png';
 import question from '../assets/icons/question.png';
@@ -16,6 +17,10 @@ import arrow from '../assets/icons/arrow.png';
 import { Grid as MuiGrid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../config/routes';
+import { useSelector } from 'react-redux';
+import { selectUserId, selectToken } from '../store/selectors/authSelectors';
+import { getUserResponseHistory, UserResponseHistory } from '../services/aiApi';
+import HistoryCard from '../components/HistoryCard/HistoryCard';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -24,45 +29,52 @@ const Home: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
-  const historyItems = [
-    {
-      id: 'ID-34567',
-      name: 'John Doe',
-      condition: 'Cardiac Arrest',
-      location: 'Downtown Street',
-      time: '1 day ago'
-    },
-    {
-      id: 'ID-34566',
-      name: 'Emily Davis',
-      condition: 'Car Accident',
-      location: 'Highway 21',
-      time: '2 days ago'
-    },
-    {
-      id: 'ID-34565',
-      name: 'Liam Harris',
-      condition: 'Fracture Injury',
-      location: 'Sports Complex',
-      time: '3 days ago'
-    },
-    {
-      id: 'ID-34564',
-      name: 'Sarah Wilson',
-      condition: 'Stroke',
-      location: 'Medical Center',
-      time: '4 days ago'
-    },
-    {
-      id: 'ID-34563',
-      name: 'Michael Brown',
-      condition: 'Heart Attack',
-      location: 'City Hospital',
-      time: '5 days ago'
-    }
-  ];
+  // Redux selectors
+  const userId = useSelector(selectUserId);
+  const authToken = useSelector(selectToken);
 
-  //   const actionButtonWidth = isMobile ? '100%' : isTablet ? '100%' : '500px';
+  // State for history data
+  const [historyItems, setHistoryItems] = useState<UserResponseHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch user response history
+  useEffect(() => {
+    const fetchUserHistory = async () => {
+      if (!userId || !authToken) {
+        console.log('🟡 No user ID or token available for fetching history');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        console.log('🟡 Fetching history for user:', userId);
+        const response = await getUserResponseHistory(userId, authToken);
+
+        if (response.success && response.data) {
+          console.log('🟢 History data received:', response.data.length, 'items');
+          setHistoryItems(response.data);
+        } else {
+          setError(response.message || 'Failed to load history');
+          console.warn('🟡 History fetch warning:', response.message);
+        }
+      } catch (err: any) {
+        console.error('🔴 Error fetching history:', err);
+        setError('Failed to load history. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserHistory();
+  }, [userId, authToken]);
+
+  // Get only first 3 history items for display
+  const displayedHistoryItems = historyItems.slice(0, 3);
+
   const actionButtonHeight = isMobile ? '120px' : '140px';
   const robotImageSize = isMobile ? 100 : isTablet ? 120 : 150;
 
@@ -170,7 +182,7 @@ const Home: React.FC = () => {
               position: 'relative',
               overflow: 'hidden',
               width: '100%',
-              minWidth: '100%', // Ensure full width
+              minWidth: '100%',
               height: actionButtonHeight,
               display: 'flex',
               alignItems: 'center',
@@ -186,9 +198,9 @@ const Home: React.FC = () => {
               onClick={() => navigate(ROUTES.VOICE_RECORDING)}
               sx={{
                 width: '100%',
-                minWidth: '100%', // Ensure full width
+                minWidth: '100%',
                 height: '100%',
-                minHeight: '100%', // Ensure full height
+                minHeight: '100%',
                 background: 'transparent',
                 fontSize: { xs: '16px', sm: '18px' },
                 fontWeight: 600,
@@ -197,8 +209,8 @@ const Home: React.FC = () => {
                 color: 'white',
                 position: 'relative',
                 justifyContent: 'flex-start',
-                padding: 8, // Remove default padding
-                margin: 0, // Remove default margin
+                padding: 8,
+                margin: 0,
                 '&:hover': {
                   background: 'transparent',
                 }
@@ -221,14 +233,14 @@ const Home: React.FC = () => {
                 />
               </Box>
 
-              {/* Button Text - Centered properly */}
+              {/* Button Text */}
               <Box sx={{
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
-                paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
+                paddingTop: { xs: 8, md: 10 }
               }}>
                 <Typography
                   variant="h6"
@@ -277,7 +289,7 @@ const Home: React.FC = () => {
               position: 'relative',
               overflow: 'hidden',
               width: '100%',
-              minWidth: '100%', // Ensure full width
+              minWidth: '100%',
               height: actionButtonHeight,
               display: 'flex',
               alignItems: 'center',
@@ -293,9 +305,9 @@ const Home: React.FC = () => {
               onClick={() => navigate(ROUTES.QUESTIONNAIRE_CHAT)}
               sx={{
                 width: '100%',
-                minWidth: '100%', // Ensure full width
+                minWidth: '100%',
                 height: '100%',
-                minHeight: '100%', // Ensure full height
+                minHeight: '100%',
                 background: 'transparent',
                 fontSize: { xs: '16px', sm: '18px' },
                 fontWeight: 600,
@@ -304,8 +316,8 @@ const Home: React.FC = () => {
                 color: 'white',
                 position: 'relative',
                 justifyContent: 'flex-start',
-                padding: 5.5, // Remove default padding
-                margin: 0, // Remove default margin
+                padding: 5.5,
+                margin: 0,
                 '&:hover': {
                   background: 'transparent',
                 }
@@ -328,14 +340,14 @@ const Home: React.FC = () => {
                 />
               </Box>
 
-              {/* Button Text - Centered properly */}
+              {/* Button Text */}
               <Box sx={{
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
-                paddingTop: { xs: 8, md: 10 } // Use padding instead of margin
+                paddingTop: { xs: 8, md: 10 }
               }}>
                 <Typography
                   variant="h6"
@@ -388,12 +400,15 @@ const Home: React.FC = () => {
         border: '1px solid #e2e8f0',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}>
-        {/* History Header */}
+        {/* History Header with See All Button */}
         <Box sx={{
           p: { xs: 1.5, md: 2 },
           pb: { xs: 1.5, md: 2 },
           borderBottom: '1px solid #f1f5f9',
-          flexShrink: 0
+          flexShrink: 0,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}>
           <Typography
             variant={isMobile ? "h6" : "h5"}
@@ -409,6 +424,26 @@ const Home: React.FC = () => {
           >
             History
           </Typography>
+          
+          {/* See All Button */}
+         
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => navigate(ROUTES.HISTORY)}
+              sx={{
+                color: 'rgba(14, 97, 192, 1)',
+                fontWeight: 500,
+                fontSize: { xs: '14px', md: '16px' },
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: 'rgba(14, 97, 192, 0.04)',
+                }
+              }}
+            >
+              See All
+            </Button>
+      
         </Box>
 
         {/* History Items Container */}
@@ -421,6 +456,30 @@ const Home: React.FC = () => {
           p: { xs: 2, md: 3 },
           pt: 0,
         }}>
+          {/* Loading State */}
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={40} sx={{ color: 'rgba(14, 97, 192, 1)' }} />
+            </Box>
+          )}
+
+          {/* Error State */}
+          {error && !loading && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && displayedHistoryItems.length === 0 && (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="body1" color="text.secondary">
+                No history found. Start a new case to see your reports here.
+              </Typography>
+            </Box>
+          )}
+
+          {/* History List - Only show 3 items */}
           <Box sx={{
             flex: 1,
             overflow: 'auto',
@@ -439,86 +498,13 @@ const Home: React.FC = () => {
               background: '#94a3b8',
             }
           }}>
-            {historyItems.map((item) => (
-              <Card
+            {!loading && displayedHistoryItems.map((item, index) => (
+              <HistoryCard
                 key={item.id}
-                sx={{
-                  mb: { xs: 1.5, md: 2 },
-                  borderRadius: { xs: 1.5, md: 2 },
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                  '&:hover': {
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                  },
-                  width: '100%',
-                  position: 'relative',
-                  overflow: 'visible',
-                  mt: 1,
-                }}
-              >
-                {/* Blue ID Badge */}
-                <Box sx={{
-                  position: 'absolute',
-                  top: -10,
-                  left: { xs: 8, md: 12 },
-                  background: 'linear-gradient(135deg, rgba(82,149,226,1) 0%, rgba(14,97,192,1) 100%)',
-                  color: 'white',
-                  px: { xs: 2, md: 3.5 },
-                  py: 0.5,
-                  borderRadius: 1,
-                  fontSize: { xs: '11px', md: '12px' },
-                  fontWeight: 600,
-                  boxShadow: '0 2px 4px rgba(14, 97, 192, 0.3)',
-                  zIndex: 1,
-                }}>
-                  {item.id}
-                </Box>
-
-                <CardContent sx={{
-                  p: { xs: 1.5, md: 2 },
-                  '&:last-child': {
-                    pb: { xs: 1.5, md: 1 }
-                  },
-                  pt: { xs: 2, md: 2 }
-                }}>
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    width: '100%',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: { xs: 1, sm: 0 }
-                  }}>
-                    <Box sx={{
-                      flex: 1,
-                      mt: { xs: 0, sm: 0.5 }
-                    }}>
-                      <Typography
-                        variant="body2"
-                        color="#64748b"
-                        sx={{
-                          fontSize: { xs: '12px', md: '13px' },
-                          lineHeight: 1.4
-                        }}
-                      >
-                        {item.name} - {item.condition} | {item.location}
-                      </Typography>
-                    </Box>
-                    <Chip
-                      label={item.time}
-                      size="small"
-                      sx={{
-                        color: 'rgba(14, 97, 192, 1)',
-                        fontWeight: 500,
-                        fontSize: { xs: '12px', md: '13px' },
-                        minWidth: { xs: '60px', md: '70px' },
-                        height: { xs: '24px', md: '28px' },
-                        mt: { xs: 0.5, sm: 0 }
-                      }}
-                    />
-                  </Box>
-                </CardContent>
-              </Card>
+                item={item}
+                showModal={true} 
+                index={index}
+              />
             ))}
           </Box>
         </Box>

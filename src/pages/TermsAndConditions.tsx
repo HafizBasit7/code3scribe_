@@ -135,7 +135,7 @@ const TermsAndConditions: React.FC = () => {
       overflow: 'hidden',
     }}>
       {/* Header */}
-      <Box sx={{ mb: { xs: 2, md: 3 }, flexShrink: 0 }}>
+      {/* <Box sx={{ mb: { xs: 2, md: 3 }, flexShrink: 0 }}>
         <Typography 
           variant={isMobile ? "h5" : "h4"} 
           sx={{ 
@@ -161,7 +161,7 @@ const TermsAndConditions: React.FC = () => {
         >
           Last updated: August 11, 2025
         </Typography>
-      </Box>
+      </Box> */}
 
       {/* Scrollable Content Area */}
       <Box sx={{ 

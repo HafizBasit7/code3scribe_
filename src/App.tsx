@@ -1,6 +1,10 @@
+import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import AppNavigator from './navigation/AppNavigator';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import AppNavigator from './navigation/AppNavigator';
+
 
 const theme = createTheme({
   palette: {
@@ -16,13 +20,16 @@ const theme = createTheme({
   },
 });
 
-function App() {
+const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AppNavigator />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AppNavigator />
+      </ThemeProvider>
+    </Provider>
   );
-}
+};
+
 
 export default App;

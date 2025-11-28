@@ -1,5 +1,6 @@
 export const ROUTES = {
   HOME: '/',
+  HISTORY: '/history',
   PROTOCOL_HUB: '/protocol-hub',
   FIND_JOBS: '/find-jobs',
   SUBSCRIPTION: '/subscription',

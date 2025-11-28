@@ -13,6 +13,7 @@ import { ArrowBack } from '@mui/icons-material';
 interface ForgotPasswordFormProps {
   onNavigate: (screen: string) => void;
    onSubmit?: () => void
+    loading?: boolean;
 }
 
 
