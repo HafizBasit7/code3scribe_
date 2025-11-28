@@ -9,7 +9,7 @@ export interface GenerateQuestionnaireRequest {
 }
 
 export interface GenerateQuestionnaireResponse {
-  questions: string[]; // Changed from messages to questions
+  questions: string[];
   assistantMessage: string | null;
   success?: boolean;
   message?: string;
@@ -24,6 +24,20 @@ export interface GenerateReportRequest {
 export interface GenerateReportResponse {
   report: string;
   success: boolean;
+  message?: string;
+}
+
+export interface UserResponseHistory {
+  id: string;
+  cleanResponse: string;
+  source: number;
+  createdAt: string;
+  timeSinceCreation: string;
+}
+
+export interface UserResponseHistoryResponse {
+  success: boolean;
+  data?: UserResponseHistory[];
   message?: string;
 }
 
@@ -55,11 +69,6 @@ export const generateQuestionnaire = async (data: GenerateQuestionnaireRequest):
     const response = await axios.post(`${API_BASE_URL}/Ai/GenerateQuestionnaire`, {
       userId: data.userId,
       medicalReason: data.medicalReason
-    }, {
-      timeout: 30000, // 30 second timeout
-      headers: {
-        'Content-Type': 'application/json'
-      }
     });
 
     console.log('🟢 GenerateQuestionnaire response:', response.data);
@@ -75,7 +84,7 @@ export const generateQuestionnaire = async (data: GenerateQuestionnaireRequest):
     return {
       questions: apiResponse.questions || [],
       assistantMessage: apiResponse.assistantMessage,
-      success: true, // Since we got a 200 response
+      success: true,
       message: 'Questions generated successfully'
     };
 
@@ -104,8 +113,7 @@ export const generateQuestionnaire = async (data: GenerateQuestionnaireRequest):
   }
 };
 
-// Generate final report (keep as is)
-
+// Generate final report
 export const generateReport = async (data: GenerateReportRequest): Promise<GenerateReportResponse> => {
   try {
     console.log('🟡 Sending GenerateReport request:', { 
@@ -131,11 +139,6 @@ export const generateReport = async (data: GenerateReportRequest): Promise<Gener
       userId: data.userId,
       medicalReason: data.medicalReason,
       questionAnswerString: data.questionAnswerString
-    }, {
-      timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json'
-      }
     });
 
     console.log('🟢 GenerateReport response:', response.data);
@@ -149,7 +152,7 @@ export const generateReport = async (data: GenerateReportRequest): Promise<Gener
     
     // Map the API response to our expected format
     return {
-      report: apiResponse.response || apiResponse.report || '', // Use 'response' field from API
+      report: apiResponse.response || apiResponse.report || '',
       success: true,
       message: 'Report generated successfully'
     };
@@ -169,24 +172,6 @@ export const generateReport = async (data: GenerateReportRequest): Promise<Gener
     }
   }
 };
-
-
-
-// services/aiApi.ts - Add these interfaces and functions
-
-export interface UserResponseHistory {
-  id: string;
-  cleanResponse: string;
-  source: number;
-  createdAt: string;
-  timeSinceCreation: string;
-}
-
-export interface UserResponseHistoryResponse {
-  success: boolean;
-  data?: UserResponseHistory[];
-  message?: string;
-}
 
 /**
  * Get user response history by user ID
@@ -211,14 +196,7 @@ export const getUserResponseHistory = async (userId: string, authToken: string):
     }
 
     const response = await axios.get(
-      `${API_BASE_URL}/Ai/GetUserResponsebyUserID/${userId}`,
-      {
-        timeout: 15000,
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
-      }
+      `${API_BASE_URL}/Ai/GetUserResponsebyUserID/${userId}`
     );
 
     console.log('🟢 User response history received:', {
@@ -290,6 +268,178 @@ export const getUserResponseHistory = async (userId: string, authToken: string):
       return {
         success: false,
         message: error.response?.data?.message || error.message || 'Failed to fetch history'
+      };
+    }
+  }
+};
+
+
+
+// services/aiApi.ts - Add this interface and function
+
+export interface DeleteResponsesRequest {
+  responseIds: string[];
+}
+
+export interface DeleteResponsesResponse {
+  success: boolean;
+  message?: string;
+  deletedCount?: number;
+}
+
+/**
+ * Delete user responses by IDs
+ */
+export const deleteUserResponses = async (responseIds: string[]): Promise<DeleteResponsesResponse> => {
+  try {
+    console.log('🟡 Deleting user responses:', responseIds);
+
+    // Validate input
+    if (!responseIds || responseIds.length === 0) {
+      throw new Error('No response IDs provided');
+    }
+
+    // Validate each ID is a valid GUID
+    const idRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    for (const id of responseIds) {
+      if (!idRegex.test(id)) {
+        throw new Error(`Invalid response ID format: ${id}`);
+      }
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/Ai/DeleteResponses`,
+      responseIds, // Send array directly as per API spec
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log('🟢 Delete responses successful:', response.data);
+
+    return {
+      success: true,
+      message: 'Responses deleted successfully',
+      deletedCount: responseIds.length
+    };
+
+  } catch (error: any) {
+    console.error('🔴 Delete responses error:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+
+    if (error.response?.status === 401) {
+      return {
+        success: false,
+        message: 'Authentication failed'
+      };
+    } else if (error.response?.status === 404) {
+      return {
+        success: false,
+        message: 'One or more responses not found'
+      };
+    } else if (error.response?.status === 500) {
+      return {
+        success: false,
+        message: 'Server error while deleting responses'
+      };
+    } else {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Failed to delete responses'
+      };
+    }
+  }
+};
+
+
+
+
+
+// services/aiApi.ts - Add this interface and function
+
+export interface UpdateQuestionnaireReportRequest {
+  id: string;
+  updatedNarrative: string;
+}
+
+export interface UpdateQuestionnaireReportResponse {
+  success: boolean;
+  message?: string;
+  updatedReport?: string;
+}
+
+/**
+ * Update questionnaire report narrative
+ */
+export const updateQuestionnaireReport = async (data: UpdateQuestionnaireReportRequest): Promise<UpdateQuestionnaireReportResponse> => {
+  try {
+    console.log('🟡 Updating questionnaire report:', {
+      id: data.id,
+      narrativeLength: data.updatedNarrative?.length
+    });
+
+    // Validate input
+    if (!data.id || data.id.trim() === '') {
+      throw new Error('Report ID is required');
+    }
+
+    if (!data.updatedNarrative || data.updatedNarrative.trim() === '') {
+      throw new Error('Updated narrative is required');
+    }
+
+    // Validate ID is a valid GUID
+    const idRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!idRegex.test(data.id)) {
+      throw new Error('Invalid report ID format');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/Ai/UpdateQuestionnaireReport`,
+      {
+        id: data.id,
+        updatedNarrative: data.updatedNarrative
+      }
+    );
+
+    console.log('🟢 Update report successful:', response.data);
+
+    return {
+      success: true,
+      message: 'Report updated successfully',
+      updatedReport: data.updatedNarrative
+    };
+
+  } catch (error: any) {
+    console.error('🔴 Update report error:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+
+    if (error.response?.status === 401) {
+      return {
+        success: false,
+        message: 'Authentication failed'
+      };
+    } else if (error.response?.status === 404) {
+      return {
+        success: false,
+        message: 'Report not found'
+      };
+    } else if (error.response?.status === 500) {
+      return {
+        success: false,
+        message: 'Server error while updating report'
+      };
+    } else {
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Failed to update report'
       };
     }
   }

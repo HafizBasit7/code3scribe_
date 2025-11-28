@@ -9,27 +9,41 @@ import {
     Modal,
     Button,
     IconButton,
+    TextField,
+    Snackbar,
+    CircularProgress,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { UserResponseHistory } from '../../services/aiApi';
+import { UserResponseHistory, updateQuestionnaireReport } from '../../services/aiApi';
 
 // Import your custom icons
 const EditIcon = () => <img src="/src/assets/icons/edit.png" alt="Edit" style={{ width: 20, height: 20 }} />;
 const ShareIcon = () => <img src="/src/assets/icons/share.png" alt="Share" style={{ width: 20, height: 20 }} />;
 const CopyIcon = () => <img src="/src/assets/icons/copy.png" alt="Copy" style={{ width: 20, height: 20 }} />;
 const CrossIcon = () => <img src="/src/assets/icons/deleteModal.png" alt="Close" style={{ width: 30, height: 30 }} />;
-
+const BackIcon = () => <img src="/src/assets/icons/backward.png" alt="Undo" style={{ width: 20, height: 20 }} />;
+const ForwardIcon = () => <img src="/src/assets/icons/forward.png" alt="Redo" style={{ width: 20, height: 20 }} />;
+const SaveEdits = () => <img src="/src/assets/icons/saveEdits.png" alt="Redo" style={{ width: 40, height: 40 }} />;
 interface HistoryCardProps {
     item: UserResponseHistory;
     showModal?: boolean;
     index: number;
+    onReportUpdate?: (updatedItem: UserResponseHistory) => void; // Add this callback
 }
 
-const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index }) => {
+const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index, onReportUpdate }) => {
     const [selectedReport, setSelectedReport] = useState<UserResponseHistory | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [timeLeft, setTimeLeft] = useState<string>('');
     const [chipColor, setChipColor] = useState<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'>('default');
+    
+    // Edit mode states
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editedText, setEditedText] = useState('');
+    const [history, setHistory] = useState<string[]>([]);
+    const [redoStack, setRedoStack] = useState<string[]>([]);
+    const [saveLoading, setSaveLoading] = useState(false);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
     const getTimeLeftInMs = (createdAt: string) => {
         const createdTime = new Date(createdAt.endsWith("Z") ? createdAt : createdAt + "Z").getTime();
@@ -82,6 +96,15 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
         return () => clearInterval(interval);
     }, [item.createdAt]);
 
+    // Initialize edit mode when modal opens with report
+    useEffect(() => {
+        if (selectedReport && modalOpen) {
+            setEditedText(selectedReport.cleanResponse);
+            setHistory([selectedReport.cleanResponse]);
+            setRedoStack([]);
+        }
+    }, [selectedReport, modalOpen]);
+
     // Helper function to extract summary from response text
     const getSummaryFromResponse = (responseText: string): string => {
         if (!responseText) return 'No details available';
@@ -111,31 +134,32 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
         return 'Medical Report';
     };
 
-    // FIXED: Time display format - show minutes and seconds properly
-    const formatTimeDisplay = (timeSinceCreation: string): string => {
-        if (!timeSinceCreation) return 'Recently';
+    // Handle text change with undo/redo tracking
+    const handleTextChange = (newText: string) => {
+        setEditedText(newText);
+        setHistory(prevHistory => [...prevHistory, newText]);
+        setRedoStack([]); // Clear redo when new input happens
+    };
 
-        const timeMatch = timeSinceCreation.match(/(\d+)\s+(\w+)/);
-        if (timeMatch) {
-            const number = timeMatch[1];
-            const unit = timeMatch[2].toLowerCase();
-
-            if (unit.includes('hour') || unit.includes('hr')) {
-                return `${number} hr${number !== '1' ? 's' : ''}`;
-            } else if (unit.includes('minute') || unit.includes('min')) {
-                return `${number} min${number !== '1' ? 's' : ''}`;
-            } else if (unit.includes('second') || unit.includes('sec')) {
-                return `${number} sec${number !== '1' ? 's' : ''}`;
-            } else if (unit.includes('day')) {
-                return `${number} day${number !== '1' ? 's' : ''}`;
-            } else if (unit.includes('week')) {
-                return `${number} week${number !== '1' ? 's' : ''}`;
-            } else if (unit.includes('month')) {
-                return `${number} month${number !== '1' ? 's' : ''}`;
-            }
+    // Undo functionality
+    const handleUndo = () => {
+        if (history.length > 1) {
+            const newHistory = [...history];
+            const last = newHistory.pop();
+            setRedoStack(prev => [last!, ...prev]); // store undone value
+            setHistory(newHistory);
+            setEditedText(newHistory[newHistory.length - 1]);
         }
+    };
 
-        return timeSinceCreation;
+    // Redo functionality
+    const handleRedo = () => {
+        if (redoStack.length > 0) {
+            const [redoItem, ...rest] = redoStack;
+            setHistory(prev => [...prev, redoItem]);
+            setEditedText(redoItem);
+            setRedoStack(rest);
+        }
     };
 
     // Handle card click - OPEN MODAL
@@ -143,6 +167,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
         if (showModal) {
             setSelectedReport(item);
             setModalOpen(true);
+            setIsEditMode(false); // Reset edit mode when opening modal
         }
     };
 
@@ -150,11 +175,77 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
     const handleCloseModal = () => {
         setModalOpen(false);
         setSelectedReport(null);
+        setIsEditMode(false);
+        setEditedText('');
+        setHistory([]);
+        setRedoStack([]);
     };
 
-    // Handle action buttons
+    // Handle edit button click
     const handleEdit = () => {
-        console.log('Edit report:', selectedReport?.id);
+        setIsEditMode(true);
+    };
+
+    // Handle save edited text - FIXED: Update parent component
+    const handleSave = async () => {
+        if (!selectedReport) return;
+
+        try {
+            setSaveLoading(true);
+            const response = await updateQuestionnaireReport({
+                id: selectedReport.id,
+                updatedNarrative: editedText
+            });
+
+            if (response.success) {
+                // Create updated report object
+                const updatedReport = {
+                    ...selectedReport,
+                    cleanResponse: editedText
+                };
+
+                // Update the local state with the new text
+                setSelectedReport(updatedReport);
+                
+                // Notify parent component about the update
+                if (onReportUpdate) {
+                    onReportUpdate(updatedReport);
+                }
+                
+                setIsEditMode(false);
+                setSnackbar({
+                    open: true,
+                    message: 'Report updated successfully',
+                    severity: 'success'
+                });
+            } else {
+                setSnackbar({
+                    open: true,
+                    message: response.message || 'Failed to update report',
+                    severity: 'error'
+                });
+            }
+        } catch (err: any) {
+            console.error('🔴 Save error:', err);
+            setSnackbar({
+                open: true,
+                message: 'Failed to update report. Please try again.',
+                severity: 'error'
+            });
+        } finally {
+            setSaveLoading(false);
+        }
+    };
+
+    // Handle cancel edit
+    const handleCancelEdit = () => {
+        setIsEditMode(false);
+        // Reset to original text
+        if (selectedReport) {
+            setEditedText(selectedReport.cleanResponse);
+            setHistory([selectedReport.cleanResponse]);
+            setRedoStack([]);
+        }
     };
 
     const handleShare = () => {
@@ -164,9 +255,16 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
     const handleCopy = () => {
         if (selectedReport?.cleanResponse) {
             navigator.clipboard.writeText(selectedReport.cleanResponse);
-            console.log('Report copied to clipboard');
-            // You can add a toast notification here
+            setSnackbar({
+                open: true,
+                message: 'Report copied to clipboard',
+                severity: 'success'
+            });
         }
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
     };
 
     return (
@@ -206,7 +304,6 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
                     zIndex: 1,
                 }}>
                     ID-{index * 2 + 1}
-
                 </Box>
 
                 <CardContent sx={{
@@ -240,7 +337,6 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
                             </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
-
                             <Box
                                 sx={{
                                     fontWeight: 600,
@@ -257,7 +353,6 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
                             >
                                 {timeLeft}
                             </Box>
-
                         </Box>
                     </Box>
                 </CardContent>
@@ -277,8 +372,9 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
                 >
                     <Box sx={{
                         width: '100%',
-                        maxWidth: '800px',
-                        maxHeight: '90vh',
+                        maxWidth: isEditMode ? '95vw' : '800px',
+                        maxHeight: isEditMode ? '95vh' : '90vh',
+                        height: isEditMode ? '95vh' : 'auto',
                         bgcolor: 'background.paper',
                         borderRadius: 2,
                         boxShadow: 24,
@@ -286,68 +382,123 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
                         display: 'flex',
                         flexDirection: 'column',
                     }}>
-                        {/* Modal Header with Action Buttons in Top Right */}
+                        {/* Modal Header */}
                         <Box sx={{
                             p: { xs: 2, md: 3 },
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             color: 'white',
+                            // background: isEditMode ? 'linear-gradient(135deg, rgba(14,97,192,1) 0%, rgba(82,149,226,1) 100%)' : 'transparent',
                         }}>
-                            <Typography variant="h5" sx={{ fontWeight: 600, color: 'rgba(14, 97, 192, 1)' }}>
+                            <Typography variant="h5" sx={{ fontWeight: 600, color: isEditMode ? 'rgba(14, 97, 192, 1)' : 'rgba(14, 97, 192, 1)' }}>
                                 Report-ID: {index * 2 + 1}
-
                             </Typography>
 
-                            {/* Action Buttons in Header - Like the Image */}
+                            {/* Action Buttons */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                {/* Edit Button */}
-                                <IconButton
-                                    onClick={handleEdit}
-                                    sx={{
-                                        color: 'white',
-                                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
-                                    }}
-                                    size="small"
-                                >
-                                    <EditIcon />
-                                </IconButton>
+                                {isEditMode ? (
+                                    // Edit Mode Buttons: Undo, Redo, Save, Cancel
+                                    <>
+                                        <IconButton
+                                            onClick={handleUndo}
+                                            disabled={history.length <= 1}
+                                            sx={{
+                                                color: 'white',
+                                                opacity: history.length <= 1 ? 0.5 : 1,
+                                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+                                            }}
+                                            size="small"
+                                        >
+                                            <BackIcon />
+                                        </IconButton>
 
-                                {/* Share Button */}
-                                <IconButton
-                                    onClick={handleShare}
-                                    sx={{
-                                        color: 'white',
-                                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
-                                    }}
-                                    size="small"
-                                >
-                                    <ShareIcon />
-                                </IconButton>
+                                        <IconButton
+                                            onClick={handleRedo}
+                                            disabled={redoStack.length === 0}
+                                            sx={{
+                                                color: 'rgba(14, 97, 192, 1)',
+                                                opacity: redoStack.length === 0 ? 0.5 : 1,
+                                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+                                            }}
+                                            size="small"
+                                        >
+                                            <ForwardIcon />
+                                        </IconButton>
 
-                                {/* Copy Button */}
-                                <IconButton
-                                    onClick={handleCopy}
-                                    sx={{
-                                        color: 'white',
-                                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
-                                    }}
-                                    size="small"
-                                >
-                                    <CopyIcon />
-                                </IconButton>
+                                        <Button
+                                            onClick={handleCancelEdit}
+                                            sx={{
+                                                color: 'white',
+                                                fontWeight: 600,
+                                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+                                            }}
+                                        >
 
-                                {/* Close Button */}
-                                <IconButton
-                                    onClick={handleCloseModal}
-                                    sx={{
-                                        color: 'white',
-                                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
-                                    }}
-                                    size="small"
-                                >
-                                    <CrossIcon />
-                                </IconButton>
+                                            <CrossIcon />
+                                        </Button>
+
+                                        <Button
+                                            onClick={handleSave}
+                                            disabled={saveLoading}
+                                            sx={{
+                                                color: 'white',
+                                                fontWeight: 600,
+                                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
+                                            }}
+                                        >
+                                            {/* {saveLoading ? <CircularProgress size={20} /> : 'Save'} */}
+                                            <SaveEdits />
+                                        </Button>
+                                    </>
+                                ) : (
+                                    // View Mode Buttons: Edit, Share, Copy, Close
+                                    <>
+                                        <IconButton
+                                            onClick={handleEdit}
+                                            sx={{
+                                                color: 'rgba(14, 97, 192, 1)',
+                                                '&:hover': { backgroundColor: 'rgba(14, 97, 192, 0.1)' }
+                                            }}
+                                            size="small"
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
+
+                                        <IconButton
+                                            onClick={handleShare}
+                                            sx={{
+                                                color: 'rgba(14, 97, 192, 1)',
+                                                '&:hover': { backgroundColor: 'rgba(14, 97, 192, 0.1)' }
+                                            }}
+                                            size="small"
+                                        >
+                                            <ShareIcon />
+                                        </IconButton>
+
+                                        <IconButton
+                                            onClick={handleCopy}
+                                            sx={{
+                                                color: 'rgba(14, 97, 192, 1)',
+                                                '&:hover': { backgroundColor: 'rgba(14, 97, 192, 0.1)' }
+                                            }}
+                                            size="small"
+                                        >
+                                            <CopyIcon />
+                                        </IconButton>
+
+                                        <IconButton
+                                            onClick={handleCloseModal}
+                                            sx={{
+                                                color: 'rgba(14, 97, 192, 1)',
+                                                '&:hover': { backgroundColor: 'rgba(14, 97, 192, 0.1)' }
+                                            }}
+                                            size="small"
+                                        >
+                                            <CrossIcon />
+                                        </IconButton>
+                                    </>
+                                )}
                             </Box>
                         </Box>
 
@@ -356,35 +507,71 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ item, showModal = true, index
                             flex: 1,
                             overflow: 'auto',
                             p: { xs: 2, md: 3 },
-
                         }}>
                             {selectedReport && (
                                 <Box>
-                                    {/* Report Content */}
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            whiteSpace: 'pre-wrap',
-                                            lineHeight: 1.6,
-                                            color: '#334155',
-                                            fontSize: { xs: '14px', md: '16px' },
-                                            border: '2px solid #e2e8f0',
-                                            // bgcolor: '#f9fafb',
-                                            borderRadius: 6,
-                                            p: 2,
-                                            minHeight: '200px',
-                                        }}
-                                    >
-                                        {selectedReport.cleanResponse}
-                                    </Typography>
+                                    {isEditMode ? (
+                                        // Edit Mode: TextField for editing
+                                        <TextField
+                                            multiline
+                                            fullWidth
+                                            value={editedText}
+                                            onChange={(e) => handleTextChange(e.target.value)}
+                                            variant="outlined"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    minHeight: '70vh',
+                                                    alignItems: 'flex-start',
+                                                    '& textarea': {
+                                                        fontSize: '16px',
+                                                        lineHeight: 1.6,
+                                                        color: '#334155',
+                                                    }
+                                                }
+                                            }}
+                                            inputProps={{
+                                                style: {
+                                                    minHeight: '70vh',
+                                                }
+                                            }}
+                                        />
+                                    ) : (
+                                        // View Mode: Read-only text display
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                whiteSpace: 'pre-wrap',
+                                                lineHeight: 1.6,
+                                                color: '#334155',
+                                                fontSize: { xs: '14px', md: '16px' },
+                                                border: '2px solid #e2e8f0',
+                                                borderRadius: 2,
+                                                p: 2,
+                                                minHeight: '200px',
+                                            }}
+                                        >
+                                            {selectedReport.cleanResponse}
+                                        </Typography>
+                                    )}
                                 </Box>
                             )}
                         </Box>
-
-
                     </Box>
                 </Modal>
             )}
+
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                message={snackbar.message}
+                sx={{
+                    '& .MuiSnackbarContent-root': {
+                        backgroundColor: snackbar.severity === 'success' ? '#4caf50' : '#f44336',
+                    }
+                }}
+            />
         </>
     );
 };

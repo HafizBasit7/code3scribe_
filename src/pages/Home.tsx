@@ -38,6 +38,15 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const handleReportUpdate = (updatedItem: UserResponseHistory) => {
+  console.log('🟡 Updating report in Home page:', updatedItem.id);
+  setHistoryItems(prevItems => 
+    prevItems.map(item => 
+      item.id === updatedItem.id ? updatedItem : item
+    )
+  );
+};
+
   // Fetch user response history
   useEffect(() => {
     const fetchUserHistory = async () => {
@@ -504,6 +513,7 @@ const Home: React.FC = () => {
                 item={item}
                 showModal={true} 
                 index={index}
+                onReportUpdate={handleReportUpdate}
               />
             ))}
           </Box>
